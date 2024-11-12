@@ -4,6 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, Form
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from starlette import status
+
+from config import settings
 from repository.database import SessionLocal
 from models.models import User
 from passlib.context import CryptContext
@@ -17,8 +19,8 @@ router = APIRouter(
 )
 
 # !!! SECRET !!!
-SECRET_KEY = 'z9t9w6dluej8fupds3fvefoozz6wlymglropksbavn32ehin9lclertyweco4rhri2weg1r3s0x4024yup42ufg4rgt6830tbfvm'
-ALGORITHM = 'HS256'
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 oath2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')

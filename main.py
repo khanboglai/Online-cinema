@@ -4,7 +4,7 @@ from repository.database import engine, SessionLocal
 from typing import Annotated
 from sqlalchemy.orm import Session
 from routers import auth
-from routers.auth import get_cureent_user
+from routers.auth import get_current_user
 from fastapi.templating import Jinja2Templates
 
 app = FastAPI()
