@@ -1,20 +1,18 @@
+"""Routers with login, register and authentification"""
 from datetime import timedelta, datetime
 from typing import Annotated
-from fastapi import APIRouter, Depends, HTTPException, Form
-from pydantic import BaseModel
+from fastapi import APIRouter, Depends, HTTPException, Form, Response, Request
+from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from starlette import status
-
+from passlib.context import CryptContext
+from jose import jwt, JWTError
 from config import settings
 from repository.database import SessionLocal
-from models.models import User
-from passlib.context import CryptContext
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
-from jose import jwt, JWTError
-from fastapi.responses import RedirectResponse
+from schemas.user import User, CreateUserRequest
 
 router = APIRouter(
-    prefix='/auth',
+    prefix='',
     tags=['auth']
 )
 
@@ -23,64 +21,72 @@ SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-oath2_bearer = OAuth2PasswordBearer(tokenUrl='auth/token')
-
-class CreateUserRequest(BaseModel):
-    username: str
-    password: str
-
-class Token(BaseModel):
-    access_token: str
-    token_type: str
+# oath2_bearer = OAuth2PasswordBearer(tokenUrl='token')
 
 def get_db():
+    """Setting connection with database"""
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
 
-db_dependency = Annotated[Session, Depends(get_db)]
+DBDependency = Annotated[Session, Depends(get_db)]
 
-# сюда шаблон
 @router.post("/register")
-async def create_user(db: db_dependency,
-                      create_user_request: CreateUserRequest):
+async def create_user(response: Response,
+                      db: DBDependency,
+                      create_user_request: CreateUserRequest = Form()):
+    """Foo for creating new user"""
     username = create_user_request.username
     existing_user = db.query(User).filter(User.username == username).first()
     if existing_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail='User with the same login already exists')
+                            detail='User with the same login already exists') # Update in nearest future
     create_user_model = User(
         username=username,
         hashed_password=bcrypt_context.hash(create_user_request.password),
     )
     db.add(create_user_model)
     db.commit()
-    return RedirectResponse(url="/", status_code=status.HTTP_302_FOUND)
+    access_token = create_access_token(CreateUserRequest.username,
+                                        CreateUserRequest.id,
+                                        timedelta(minutes=20))
+    response = RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
+    response.set_cookie(key="access_token", value=access_token)
+    return response
 
-# сюда шаблон
 @router.post("/login")
-async def login(db: db_dependency,
-                create_user_request: CreateUserRequest):
-    user = authentificate_user(create_user_request.username, create_user_request.password, db)
+async def login(response: Response,
+                db: DBDependency,
+                create_user_request: CreateUserRequest = Form()):
+    """Foo for login user"""
+    user = authentificate_user(
+        create_user_request.username,
+        create_user_request.password,
+        db)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='Could not validate user.')
-    return RedirectResponse(url="/", status_code=status.HTTP_302_FOUND)
+                            detail='Could not validate user.') # Update in nearest future
+    access_token = create_access_token(user.username, user.id, timedelta(minutes=20))
+    response = RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
+    response.set_cookie(key="access_token", value=access_token)
+    return response
 
-# сюда не надо шаблон, тут для бэка все
-@router.post("/token", response_model=Token)
-async def login_for_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
-                                 db: db_dependency):
-    user = authentificate_user(form_data.username, form_data.password, db)
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='Could not validate user.')
-    token = create_access_token(user.username, user.id, timedelta(minutes=20))
-    return {'access_token': token, 'token_type': 'bearer'}
+# @router.post("/token", response_model=Token)
+# async def login_for_token(
+#         form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: DBDependency):
+#     """Foo for giving token with login"""
+#     user = authentificate_user(form_data.username, form_data.password, db)
+#     if not user:
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+#                             detail='Could not validate user.')
+#     token = create_access_token(user.username, user.id, timedelta(minutes=20))
+#     return {'access_token': token, 'token_type': 'bearer'}
+
 
 def authentificate_user(username: str, password: str, db):
+    """Auth user with his hashed password"""
     user = db.query(User).filter(User.username == username).first()
     if not user:
         return False
@@ -88,22 +94,32 @@ def authentificate_user(username: str, password: str, db):
         return False
     return user
 
+
 def create_access_token(username: str, user_id: str, expires_delta: timedelta):
+    """Creation of JWT token"""
     encode = {'sub': username, 'id': user_id}
     expires = datetime.now() + expires_delta
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
-async def get_current_user(token: Annotated[str, Depends(oath2_bearer)]):
+
+async def get_current_user(db: DBDependency,
+                           request: Request):
+    """Getting user info by JWT token"""
+    token = request.cookies.get('access_token')
+    if token is None:
+        return None
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')
-        user_id: int = payload.get('id')
-        if username is None or user_id is None:
+        if username is None:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                detail='Could not validate user.')
-        return {'username': username, 'id': user_id}
-    except JWTError:
+                                detail='Invalide validate')
+    except JWTError as e:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='Could not validate user.')
-
+                            detail='Invalide validate') from e
+    user = db.query(User).filter(User.username == username).first()
+    if user is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail='Invalide validate')
+    return user
