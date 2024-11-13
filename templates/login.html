@@ -9,14 +9,14 @@
 <body>
 <div class="login-page">
   <div class="form">
-    <form class="login-form">
+    <form class="login-form" action="/login" method="POST">
         <label>
-            <input type="text" placeholder="username"/>
+            <input type="text" placeholder="username" id="username" name="username" required/>
         </label>
         <label>
-            <input type="password" placeholder="password"/>
+            <input type="password" placeholder="password" id="password" name="password" required/>
         </label>
-        <button>login</button>
+        <button type="submit">login</button>
       <p class="message">Not registered? <a href="/register">Create an account</a></p>
     </form>
   </div>
