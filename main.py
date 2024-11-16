@@ -15,15 +15,6 @@ app.include_router(pages.router)
 
 app.mount('/static', StaticFiles(directory='static'), 'static')
 
-# def get_db():
-#     """Setting connection with database"""
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()
-
-# DBDependency = Annotated[Session, Depends(get_db)]
 UserDependency = Annotated[dict, Depends(get_current_user)]
 
 @app.get("/", status_code=status.HTTP_200_OK)
