@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 from passlib.context import CryptContext
 from jose import jwt, JWTError
-from config import settings
+# from config import settings
 from repository.database import SessionLocal
 from schemas.user import User, CreateUserRequest
 
@@ -17,11 +17,13 @@ router = APIRouter(
 )
 
 # !!! SECRET !!!
-SECRET_KEY = settings.SECRET_KEY
-ALGORITHM = settings.ALGORITHM
+# SECRET_KEY = settings.SECRET_KEY
+# ALGORITHM = settings.ALGORITHM
+
+SECRET_KEY='z9t9w6dluej8fupds3fvefoozz6wlymglropksbavn32ehin9lclertyweco4rhri2weg1r3s0x4024yup42ufg4rgt6830tbfvm'
+ALGORITHM='HS256'
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
-# oath2_bearer = OAuth2PasswordBearer(tokenUrl='token')
 
 def get_db():
     """Setting connection with database"""
@@ -85,6 +87,8 @@ def authentificate_user(username: str, password: str, db):
 def create_access_token(username: str, user_id: str):
     """Creation of JWT token"""
     encode = {'sub': username, 'id': user_id}
+    expires = datetime.now() + timedelta(hours=1)
+    encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
 async def get_current_user(db: DBDependency,
@@ -97,13 +101,10 @@ async def get_current_user(db: DBDependency,
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')
         if username is None:
-            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                                detail='Invalide validate')
+            return None
     except JWTError as e:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='Invalide validate') from e
+        return None
     user = db.query(User).filter(User.username == username).first()
     if user is None:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='Invalide validate')
+        return None
     return user
