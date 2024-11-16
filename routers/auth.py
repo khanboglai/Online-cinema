@@ -50,10 +50,9 @@ async def create_user(response: Response,
     db.add(create_user_model)
     db.commit()
     access_token = create_access_token(CreateUserRequest.username,
-                                        CreateUserRequest.id,
-                                        timedelta(minutes=20))
+                                        CreateUserRequest.id)
     response = RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
-    response.set_cookie(key="access_token", value=access_token)
+    response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
     return response
 
 @router.post("/login")
@@ -68,22 +67,11 @@ async def login(response: Response,
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='Could not validate user.') # Update in nearest future
-    access_token = create_access_token(user.username, user.id, timedelta(minutes=20))
+    access_token = create_access_token(user.username,
+                                       user.id)
     response = RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
-    response.set_cookie(key="access_token", value=access_token)
+    response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
     return response
-
-# @router.post("/token", response_model=Token)
-# async def login_for_token(
-#         form_data: Annotated[OAuth2PasswordRequestForm, Depends()], db: DBDependency):
-#     """Foo for giving token with login"""
-#     user = authentificate_user(form_data.username, form_data.password, db)
-#     if not user:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-#                             detail='Could not validate user.')
-#     token = create_access_token(user.username, user.id, timedelta(minutes=20))
-#     return {'access_token': token, 'token_type': 'bearer'}
-
 
 def authentificate_user(username: str, password: str, db):
     """Auth user with his hashed password"""
@@ -94,14 +82,10 @@ def authentificate_user(username: str, password: str, db):
         return False
     return user
 
-
-def create_access_token(username: str, user_id: str, expires_delta: timedelta):
+def create_access_token(username: str, user_id: str):
     """Creation of JWT token"""
     encode = {'sub': username, 'id': user_id}
-    expires = datetime.now() + expires_delta
-    encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
-
 
 async def get_current_user(db: DBDependency,
                            request: Request):
