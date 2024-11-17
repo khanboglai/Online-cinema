@@ -51,8 +51,9 @@ async def create_user(response: Response,
     )
     db.add(create_user_model)
     db.commit()
-    access_token = create_access_token(CreateUserRequest.username,
-                                        CreateUserRequest.id)
+    user = db.query(User).filter(User.username == username).first()
+    access_token = create_access_token(user.username,
+                                        user.id)
     response = RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
     return response
