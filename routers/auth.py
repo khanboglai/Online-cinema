@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from starlette import status
 from passlib.context import CryptContext
 from jose import jwt, JWTError
-# from config import settings
+from config import settings
 from repository.database import SessionLocal
 from schemas.user import User, CreateUserRequest
 
@@ -17,11 +17,8 @@ router = APIRouter(
 )
 
 # !!! SECRET !!!
-# SECRET_KEY = settings.SECRET_KEY
-# ALGORITHM = settings.ALGORITHM
-
-SECRET_KEY='z9t9w6dluej8fupds3fvefoozz6wlymglropksbavn32ehin9lclertyweco4rhri2weg1r3s0x4024yup42ufg4rgt6830tbfvm'
-ALGORITHM='HS256'
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
@@ -76,6 +73,13 @@ async def login(response: Response,
     response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
     return response
 
+@router.get('/logout')
+async def logout(request: Request):
+    """Foo for logout user"""
+    response = RedirectResponse(url='/login', status_code=303)
+    response.delete_cookie(key='access_token')
+    return response
+
 def authentificate_user(username: str, password: str, db):
     """Auth user with his hashed password"""
     user = db.query(User).filter(User.username == username).first()
@@ -101,11 +105,6 @@ async def get_current_user(db: DBDependency,
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')
-        if username is None:
-            return None
+        return username
     except JWTError as e:
         return None
-    user = db.query(User).filter(User.username == username).first()
-    if user is None:
-        return None
-    return user
