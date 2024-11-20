@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<!--  <base href="/" />-->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЛК</title>
+  <link rel="stylesheet" type="text/css" href="/static/css/lk.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container">
+      <h2>Личный кабинет</h2>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="profile-section">
+      <div class="profile-image">
+        <div class="profile-content">
+          <svg class="avatar" viewBox="0 0 100 100">
+          <circle cx="50" cy="35" r="25" fill="#e50914"/>
+          <circle cx="50" cy="90" r="35" fill="#e50914"/>
+          </svg>
+          <div class="profile-info">
+            <h2>{{ user }}</h2>
+            <p>Premium Subscriber</p>
+          </div>
+        </div>
+        <button onclick="editProfile()">Edit Profile</button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Subscription Status</h3>
+          <p class="amount">Premium 4K</p>
+          <small>Next billing: 15 Dec 2023</small>
+        </div>
+        <div class="stat-card">
+          <h3>Watch Time</h3>
+          <p class="amount">126 hours</p>
+          <small>This month</small>
+        </div>
+        <div class="stat-card">
+          <h3>Watchlist Progress</h3>
+          <div class="progress-bar">
+            <div class="progress"></div>
+          </div>
+          <p>15 of 20 movies watched</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="activity-feed">
+      <h2>Recently Watched</h2>
+      <div class="activity-item">
+        <svg class="activity-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="#e50914"/>
+          <path d="M9 8l8 4l-8 4V8z" fill="white"/>
+        </svg>
+        <div>
+          <h3>Inception</h3>
+          <p>Watched 85% - Continue watching</p>
+          <small>2 hours ago</small>
+        </div>
+      </div>
+      <div class="activity-item">
+        <svg class="activity-icon" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" fill="#e50914"/>
+          <path d="M9 8l8 4l-8 4V8z" fill="white"/>
+        </svg>
+        <div>
+          <h3>The Dark Knight</h3>
+          <p>Completed</p>
+          <small>Yesterday</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="watchlist">
+      <div class="movie-card">
+        <div class="movie-poster">
+          <svg viewBox="0 0 24 24" width="48" height="48">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="white"/>
+          </svg>
+        </div>
+        <div class="movie-info">
+          <h3>Interstellar</h3>
+          <p>On your watchlist</p>
+        </div>
+      </div>
+      <div class="movie-card">
+        <div class="movie-poster">
+          <svg viewBox="0 0 24 24" width="48" height="48">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="white"/>
+          </svg>
+        </div>
+        <div class="movie-info">
+          <h3>The Matrix</h3>
+          <p>On your watchlist</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+<script src="/static/js/script.js"></script>
+</body>
+</html>
