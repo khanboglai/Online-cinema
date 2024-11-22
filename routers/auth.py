@@ -73,7 +73,7 @@ async def login(response: Response,
     response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
     return response
 
-@router.get('/logout')
+@router.post('/logout')
 async def logout(request: Request):
     """Foo for logout user"""
     response = RedirectResponse(url='/login', status_code=303)

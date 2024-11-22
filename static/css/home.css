@@ -1,0 +1,49 @@
+
+* {
+    margin: 0;
+  }
+
+.myheader {
+    background: #1a1d24;
+    color: white;
+    padding: 0px;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1200px;
+    padding: 20px;
+  }
+
+  .tag {
+    margin-top: 10px;
+}
+
+.image-container {
+    display: flex; /* Используем Flexbox */
+    flex-wrap: wrap; /* Позволяем перенос изображений на следующую строку, если не помещаются */
+    gap: 10px; /* Отступы между изображениями */
+}
+.image-item {
+    text-align: center; /* Центрируем подписи под изображениями */
+}
+img {
+    width: 300px; /* Ширина изображений */
+    height: auto; /* Автоматическая высота для сохранения пропорций */
+}
+
+.logout-button {
+    background-color: #dc3545; /* Цвет фона кнопки */
+    color: white; /* Цвет текста */
+    border: none; /* Убираем рамку */
+    padding: 10px 15px; /* Отступы внутри кнопки */
+    cursor: pointer; /* Указатель при наведении */
+    border-radius: 5px; /* Закругленные углы */
+}
+
+.logout-button:hover {
+    background-color: #c82333; /* Цвет фона при наведении */
+}
+

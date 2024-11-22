@@ -4,8 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Homepage</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/home.css">
 </head>
 <body>
-    Hello world!
+    <header class="myheader">
+        <div class="header-container">
+            <h2>ChocoPy</h2>
+            <form action="/logout" method="POST" style="display: inline;">
+                <button type="submit" class="logout-button">Logout</button>
+            </form>
+        </div>
+    </header>
+    {% for tag, images in films.items() %}
+    <div class="tag">
+        <h2>{{ tag }}</h2>
+        <div class="image-container">
+            {% for image in images %}
+            <div class="image-item">
+                <img src="data:image/png;base64,{{ image['cover'] }}" alt="{{ image['name'] }}" style="width: 200px; height: auto; margin: 10px;">
+                <p>{{ image['name'] }}</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endfor %}
 </body>
 </html>
