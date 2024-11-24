@@ -3,7 +3,11 @@ function editProfile() {
 }
 
 function goLK() {
-  window.location.replace('lk/');
+  window.location.replace('/lk');
+}
+
+function logout() {
+  window.location.replace('/logout')
 }
 
 document.addEventListener('DOMContentLoaded', () => {
