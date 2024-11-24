@@ -23,8 +23,12 @@
           <circle cx="50" cy="90" r="35" fill="#e50914"/>
           </svg>
           <div class="profile-info">
-            <h2>{{ user }}</h2>
-            <p>Premium Subscriber</p>
+            <h2>{{ username }}</h2>
+            <p>
+              {% if age is not none %}
+                {{ age }} y.o.
+              {% endif %}
+            </p>
           </div>
         </div>
         <button onclick="editProfile()">Edit Profile</button>
