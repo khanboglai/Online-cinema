@@ -5,8 +5,9 @@ from fastapi.responses import RedirectResponse
 from starlette import status
 from starlette.templating import Jinja2Templates
 from routers.auth import get_current_user
+from schemas.user import User
 
-UserDependency = Annotated[dict, Depends(get_current_user)]
+UserDependency = Annotated[User, Depends(get_current_user)]
 
 router = APIRouter(prefix="", tags=["Pages"])
 templates = Jinja2Templates(directory="templates")

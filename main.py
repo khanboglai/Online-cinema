@@ -5,13 +5,14 @@ from fastapi.responses import RedirectResponse
 from starlette.staticfiles import StaticFiles
 from sqlalchemy.orm import Session
 from repository.database import SessionLocal
-from routers import auth, pages, home
+from routers import auth, pages, lk, home
 from routers.auth import get_current_user
 
 app = FastAPI()
 
 app.include_router(auth.router)
 app.include_router(pages.router)
+app.include_router(lk.router)
 app.include_router(home.router)
 
 app.mount('/static', StaticFiles(directory='static'), 'static')

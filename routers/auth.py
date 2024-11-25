@@ -3,6 +3,7 @@ from datetime import timedelta, datetime
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Form, Response, Request
 from fastapi.responses import RedirectResponse
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 from starlette import status
 from passlib.context import CryptContext
@@ -97,7 +98,7 @@ def create_access_token(username: str, user_id: str):
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
 async def get_current_user(db: DBDependency,
-                           request: Request):
+                           request: Request) -> User | None:
     """Getting user info by JWT token"""
     token = request.cookies.get('access_token')
     if token is None:
@@ -105,6 +106,7 @@ async def get_current_user(db: DBDependency,
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')
-        return username
+        user = db.execute(select(User).filter_by(username=username)).scalar_one_or_none()
+        return user
     except JWTError as e:
         return None
