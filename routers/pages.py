@@ -25,10 +25,3 @@ async def get_register_html(user: UserDependency, request: Request):
     if user is None:
         return templates.TemplateResponse("register.html", {"request": request})
     return RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
-
-@router.get("/home")
-async def get_home_html(user: UserDependency, request: Request):
-    """Returns template for home page"""
-    if user is None:
-        return RedirectResponse(url="/login")
-    return templates.TemplateResponse("home.html", {"request": request})
