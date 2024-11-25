@@ -12,10 +12,3 @@ searchBar.addEventListener('keyup', (e) => {
         console.log('Searching for:', searchBar.value);
     }
 });
-
-// Add logout confirmation
-document.getElementById('logoutForm').addEventListener('submit', function(e) {
-    if(!confirm('Are you sure you want to logout?')) {
-        e.preventDefault();
-    }
-});

@@ -51,7 +51,7 @@ nav {
     width: 300px;
 }
 
-.logout-btn {
+.lk-btn {
     background-color: var(--primary-red);
     color: var(--white-bg);
     border: none;
