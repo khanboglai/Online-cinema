@@ -36,6 +36,36 @@ services:
     tty: true
     stdin_open: true
 
+  web:
+    build:
+      context: ./web_api
+      dockerfile: Dockerfile_web
+    container_name: web
+    restart: always
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    environment:
+      DB_USER: debug
+      DB_PASSWORD: pswd
+      DB_HOST: cinema_postgres_db
+      DB_PORT: 5432
+      DB_NAME: cinema
+      SECRET_KEY: 'z9t9w6dluej8fupds3fvefoozz6wlymglropksbavn32ehin9lclertyweco4rhri2weg1r3s0x4024yup42ufg4rgt6830tbfvm'
+      ALGORITHM: 'HS256'
+    volumes:
+      - ./web_api:/app
+
+  ml:
+    build: 
+      context: ./ml_api
+      dockerfile: Dockerfile_ml
+    container_name: ml
+    restart: always
+    ports:
+      - "8080:8000"
+    
 volumes:
   pgdata:
     driver: local
