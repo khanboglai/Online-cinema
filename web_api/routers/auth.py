@@ -87,7 +87,6 @@ def authentificate_user(username: str, password: str, db):
     if not user:
         return False
     if not bcrypt_context.verify(password, user.hashed_password):
-        print("here")
         return False
     return user
 
