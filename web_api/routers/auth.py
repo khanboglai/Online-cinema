@@ -74,7 +74,7 @@ async def login(response: Response,
     response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
     return response
 
-@router.post('/logout')
+@router.get('/logout')
 async def logout(request: Request):
     """Foo for logout user"""
     response = RedirectResponse(url='/login', status_code=303)
@@ -108,5 +108,19 @@ async def get_current_user(db: DBDependency,
         username: str = payload.get('sub')
         user = db.execute(select(User).filter_by(username=username)).scalar_one_or_none()
         return user
+    except JWTError as e:
+        return None
+    
+async def get_current_user_id(db: DBDependency,
+                           request: Request) -> User | None:
+    """Getting user info by JWT token"""
+    token = request.cookies.get('access_token')
+    if token is None:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id: str = payload.get('id')
+        # user = db.execute(select(User).filter_by(username=username)).scalar_one_or_none()
+        return user_id
     except JWTError as e:
         return None

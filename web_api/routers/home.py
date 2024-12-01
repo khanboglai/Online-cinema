@@ -1,11 +1,12 @@
 import csv
 import os
 import base64
+import pandas as pd
 from collections import defaultdict
 from typing import Annotated
 from fastapi import APIRouter, Request, Depends
 from starlette.templating import Jinja2Templates
-from routers.auth import get_current_user
+from routers.auth import get_current_user_id
 
 import httpx
 
@@ -16,7 +17,7 @@ router = APIRouter(
 
 templates = Jinja2Templates(directory="templates")
 
-UserDependency = Annotated[dict, Depends(get_current_user)]
+UserDependency = Annotated[dict, Depends(get_current_user_id)]
 
 async def get_image_base64(image_path: str) -> str:
     with open(image_path, "rb") as image_file:
@@ -28,21 +29,12 @@ async def get_home_html(user: UserDependency, request: Request):
     if user is None:
         return RedirectResponse(url="/login")
     else:
-        # ОБРАЩЕНИЕ К МЛ МОДУЛЮ
-        # images_by_tag = defaultdict(list)
-        # with open('dataset.csv', mode='r', newline='', encoding='utf-8') as file:
-        #     csv_reader = csv.DictReader(file)
-        #     for row in csv_reader:
-        #         name = row['name']
-        #         image_path = row['cover']
-        #         tag = row['tag']
-        #         if os.path.exists(image_path):
-        #             images_by_tag[tag].append({"cover": await get_image_base64(image_path),
-        #                                        "name": name
-        #                                        })
-        #     # file.close()
-        # return templates.TemplateResponse("home.html", {"request": request, "films": images_by_tag})
-
         async with httpx.AsyncClient() as client:
-            response = await client.get("http://ml:8080/recommend/1639")  # Обращаемся ко второму API
-            return response.json()
+            response = await client.get(f"http://ml:8080/recommend/{user}")  # Обращаемся ко второму API
+        images_by_tag = defaultdict(list)
+        df = pd.read_csv("static/data/items.csv")
+        for film in response.json()["recommendations"]:
+            images_by_tag["Recommended"].append({"cover": await get_image_base64("static/image.png"),
+                                                 "name": df[(df["item_id"] == film)]["title"].to_string(index=False)})
+        return templates.TemplateResponse("home.html", {"request": request, "films": images_by_tag})
+
