@@ -1,6 +1,3 @@
-import csv
-import os
-import base64
 import pandas as pd
 from collections import defaultdict
 from typing import Annotated
@@ -19,10 +16,6 @@ templates = Jinja2Templates(directory="templates")
 
 UserDependency = Annotated[dict, Depends(get_current_user_id)]
 
-async def get_image_base64(image_path: str) -> str:
-    with open(image_path, "rb") as image_file:
-        return base64.b64encode(image_file.read()).decode('utf-8')
-
 @router.get("/home")
 async def get_home_html(user: UserDependency, request: Request):
     """Returns template for home page"""
@@ -34,7 +27,8 @@ async def get_home_html(user: UserDependency, request: Request):
         images_by_tag = defaultdict(list)
         df = pd.read_csv("static/data/items.csv")
         for film in response.json()["recommendations"]:
-            images_by_tag["Recommended"].append({"cover": await get_image_base64("static/image.png"),
-                                                 "name": df[(df["item_id"] == film)]["title"].to_string(index=False)})
+            images_by_tag["Recommended"].append({"cover": "/static/image.png",
+                                                 "name": df[(df["item_id"] == film)]["title"].to_string(index=False),
+                                                 "id": film},)
         return templates.TemplateResponse("home.html", {"request": request, "films": images_by_tag})
 

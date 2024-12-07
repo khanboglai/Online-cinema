@@ -1,0 +1,74 @@
+<html><head><base href="." />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ film['title'].values[0] }}</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/film.css">
+    </head>
+    <body>
+        <header>
+            <nav>
+                <div class="logo">ChocoPy</div>
+                <input type="text" class="search-bar" placeholder="Search films...">
+                <form action="/lk" method="GET">
+                    <button type="submit" class="lk-btn">Личный кабинет</button>
+                </form>
+            </nav>
+        </header>
+    
+        <div class="video-container">
+            {% if film['rating_kp'].values[0] != -1 %}
+            <div class="film-rating">{{ film['rating_kp'].values[0] }}/10 ⭐</div>
+            {% endif %}
+            <div class="cover-overlay" id="coverOverlay">
+                <div class="play-button">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="white">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </div>
+            </div>
+            <img src="{{ cover }}" 
+                 alt="{{ film['title'] }}" 
+                 class="film-cover" 
+                 id="filmCover">
+            <video class="video-player" id="videoPlayer">
+                <source src="{{ video }}" type="video/mp4">
+            </video>
+            <div class="video-controls">
+                <button class="control-btn" id="playPauseBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M8 5v14l11-7z"/>
+                    </svg>
+                </button>
+                <div class="progress-bar" id="progressBar">
+                    <div class="progress" id="progress"></div>
+                </div>
+                <!-- <span id="currentTime">0:00</span> / <span id="duration">0:00</span> -->
+                <button class="control-btn" id="fullscreenBtn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    
+        <div class="movie-info">
+            <h1 class="movie-title">{{ film['title'].values[0] }}</h1>
+            <div class="movie-meta">
+                {% if film['date'].values[0] != 0 %}
+                    {{ film['date'].values[0] }}
+                {% endif %}
+                {% if film['genres'].values[0] %}
+                    {{ film['genres'].values[0] }}
+                {% endif %}
+            </div>
+            <h2 class="movie-description">
+                Описание:
+            </h2>
+            <p class="movie-description">
+                {{ film['description'].values[0] }}
+            </p>
+        </div>
+    
+        <script src="/static/js/film.js"></script>
+    </body>
+    </html>
