@@ -10,4 +10,5 @@ class User(Base):
     hashed_password = Column(String)
     birth_date = Column(DateTime)
     sex = Column(String)
+    role = Column(String)
     # TODO: subscription plan
