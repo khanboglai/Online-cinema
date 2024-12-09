@@ -2,6 +2,8 @@
 import os
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
+from starlette.templating import Jinja2Templates
+
 
 # load_dotenv(override=True)
 
@@ -20,8 +22,9 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
+templates = Jinja2Templates(directory="templates")
 
 def get_db_url():
     """Getter of db URL"""
-    return (f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}@"
+    return (f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}@"
             f"{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}")
