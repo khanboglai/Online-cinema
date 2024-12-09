@@ -47,5 +47,6 @@ async def edit(response: Response,
     new_user = await edit_user(user, form)
     access_token = create_access_token(new_user.username,
                                        new_user.id)
+    response = RedirectResponse(url="/lk", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
-    return RedirectResponse(url="/lk", status_code=status.HTTP_302_FOUND)
+    return response
