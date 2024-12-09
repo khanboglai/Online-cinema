@@ -2,7 +2,6 @@ from sqlalchemy import Column, String, Integer, DateTime
 
 from repository.database import Base
 
-
 class User(Base):
     """Definition of table User"""
     __tablename__ = 'User'
