@@ -4,3 +4,4 @@ venv
 *.env
 *.png
 *.csv
+ml_api/src/data/

@@ -1,0 +1,99 @@
+"""Routers with login, register and authentification"""
+from datetime import timedelta, datetime
+from typing import Annotated
+
+from fastapi import Form, Request, Depends
+from passlib.context import CryptContext
+from jose import jwt, JWTError
+from config import settings
+from exceptions.exceptions import UserIsExistError
+from repository.user_dao import UserDao
+from schemas.user import CreateUserRequest, EditUserRequest
+from models.user import User
+
+# !!! SECRET !!!
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
+
+
+bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+
+dao = UserDao()
+
+async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
+    """Foo for creating new user"""
+    username = create_user_request.username
+    existing_user = await dao.find_by_username(username)
+    if existing_user:
+        raise UserIsExistError()  # Update in nearest future
+    await dao.add(
+        username=username,
+        hashed_password=bcrypt_context.hash(create_user_request.password)
+    )
+    user = await dao.find_by_username(username)
+    access_token = create_access_token(user.username,
+                                       user.id)
+
+    return access_token
+
+async def authenticate_user(username: str, password: str) -> User | None:
+    """Auth user with his hashed password"""
+    user = await dao.find_by_username(username)
+    if not user:
+        return None
+    if not bcrypt_context.verify(password, user.hashed_password):
+        return None
+    return user
+
+
+def create_access_token(username: str, user_id: str):
+    """Creation of JWT token"""
+    encode = {'sub': username, 'id': user_id}
+    expires = datetime.now() + timedelta(hours=1)
+    encode.update({'exp': expires})
+    return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
+
+async def get_current_user(request: Request) -> User | None:
+    """Getting user info by JWT token"""
+    token = request.cookies.get('access_token')
+    if token is None:
+        return None
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        username: str = payload.get('sub')
+        user = await dao.find_by_username(username)
+        return user
+    except JWTError as e:
+        return None
+
+UserDependency = Annotated[User, Depends(get_current_user)]
+
+def get_age(birth_date: datetime) -> int:
+    return (
+            datetime.now().year
+            - birth_date.year
+            - (
+                    (datetime.now().month, datetime.now().day)
+                    < (birth_date.month, birth_date.day)
+            )
+    )
+
+async def check_username_available(username: str) -> bool:
+    user = await dao.find_by_username(username)
+    if user is None:
+        return True
+    return False
+
+async def edit_user(user: UserDependency, form: EditUserRequest) -> User:
+    if form.username != user.username and await check_username_available(form.username):
+        user.username = form.username
+    if form.new_password:
+        user.hashed_password = bcrypt_context.hash(form.new_password)
+    if form.birth_date:
+        user.birth_date = form.birth_date
+    if form.sex:
+        user.sex = form.sex
+
+    await dao.update(user)
+
+    return user

@@ -8,18 +8,6 @@ from repository.database import Base, engine
 from fastapi import Form
 from typing import Annotated, Optional
 
-class User(Base):
-    """Definition of table User"""
-    __tablename__ = 'User'
-    id = Column(Integer, primary_key=True, index=True)
-    username = Column(String, unique=True)
-    hashed_password = Column(String)
-    birth_date = Column(DateTime)
-    sex = Column(String)
-    # TODO: subscription plan
-
-Base.metadata.create_all(engine)
-
 class CreateUserRequest(BaseModel):
     """Register and login requset validation model"""
     username: str
