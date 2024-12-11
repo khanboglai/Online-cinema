@@ -33,8 +33,12 @@ async def upload_film(
 ):
     '''
     POST (/upload) endpoint
-    :param file:
-    :param upload_form:
+    :param film_name:
+    :param film_file:
+    :param country:
+    :param year:
+    :param director:
+    :param age_rating:
     :param response:
     :return:
     '''
@@ -43,6 +47,6 @@ async def upload_film(
         await save_film(film_name, age_rating, director, year, country, film_file)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                      detail="Can't save film")
+                      detail=repr(e))
 
     return Response(status_code=status.HTTP_200_OK)

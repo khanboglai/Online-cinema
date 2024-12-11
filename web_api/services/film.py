@@ -1,10 +1,18 @@
+"""
+Service layer for films.
+"""
+
 import os
 
 import aiofiles
 from fastapi import UploadFile, Form
 
+from repository.film_dao import FilmDao
+
 UPLOAD_FOLDER = "/app/uploads"
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+dao = FilmDao()
 
 async def save_film(
         film_name: str,
@@ -19,9 +27,20 @@ async def save_film(
     :param upload_form:
     :return:
     '''
-    print("DEBUG: saving film")
 
-    file_location = os.path.join(UPLOAD_FOLDER, film_name)
+    print("Save film")
+
+    film = await dao.add(
+        name=film_name,
+        age_rating=age_rating,
+        director=director,
+        year=year,
+        country=country,
+    )
+
+    print("film added: " + film_name)
+
+    file_location = os.path.join(UPLOAD_FOLDER, str(film.id) + "_" + film.name)
 
     async with aiofiles.open(file_location, "wb") as out_file:
         content = await file.read()

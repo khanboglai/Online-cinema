@@ -1,3 +1,7 @@
+"""
+User ORM model.
+"""
+
 from sqlalchemy import Column, String, Integer, DateTime
 
 from repository.database import Base
