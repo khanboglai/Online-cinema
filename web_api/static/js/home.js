@@ -1,6 +1,5 @@
 const searchBar = document.querySelector('.search-bar');
 const searchSuggestions = document.querySelector('.search-suggestions');
-const suggestionItems = document.querySelectorAll('.suggestion-item');
 
 searchBar.addEventListener('focus', () => {
     searchSuggestions.classList.add('active');

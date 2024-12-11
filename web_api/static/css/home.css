@@ -24,7 +24,6 @@
     left: 0;
     right: 0;
     background: var(--white-bg);
-    border: 1px solid var(--light-red);
     border-top: none;
     border-radius: 0 0 20px 20px;
     max-height: 0;
@@ -34,7 +33,7 @@
 }
 
 .search-suggestions.active {
-    max-height: 300px;
+    max-height: 500px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
@@ -47,13 +46,7 @@
 }
 
 .suggestion-item:hover {
-    background-color: #f5f5f5;
-}
-
-.suggestion-item svg {
-    width: 16px;
-    height: 16px;
-    fill: #666;
+    background-color: #ccc4c4;
 }
 
 body {
