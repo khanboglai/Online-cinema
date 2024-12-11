@@ -6,9 +6,12 @@
 });
 
 // Add search functionality
-const searchBar = document.querySelector('.search-bar');
-searchBar.addEventListener('keyup', (e) => {
-    if(e.key === 'Enter') {
-        console.log('Searching for:', searchBar.value);
+function handleKeyPress(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        const query = document.querySelector('.search-bar').value;
+        if (query) {
+            window.location.href = '/search/' + encodeURIComponent(query) + '/page=1';
+        }
     }
-});
+}

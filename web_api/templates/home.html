@@ -8,7 +8,7 @@
         <header>
             <nav>
                 <div class="logo">ChocoPy</div>
-                <input type="text" class="search-bar" placeholder="Search films...">
+                <input type="text" class="search-bar" name="query" placeholder="Search films..." onkeypress="handleKeyPress(event)">
                 <form action="/lk" method="GET">
                     <button type="submit" class="lk-btn">Личный кабинет</button>
                 </form>
@@ -21,17 +21,14 @@
             <div class="main-content">
                 {% for image in images %}
                 <!-- Video Card 1 -->
-                <div class="video-card">
+                <div class="video-card" onclick="window.location='/films/{{ image['id'] }}'">
                     <div class="thumbnail">
                         <div class="thumbnail-overlay">
-                            <img src="data:image/png;base64,{{ image['cover'] }}" alt="{{ image['name'] }}" style="width: 400px; height: 230px; margin: 0;">
+                            <img src="{{ image['cover'] }}" alt="{{ image['name'] }}" style="width: 400px; height: 230px; margin: 0;">
                         </div>
                     </div>
                     <div class="video-info">
                         <h3 class="video-title">{{ image['name'] }}</h3>
-                        <!-- <div class="video-meta">
-                            <span>1.2M views</span> • <span>2 hours ago</span>
-                        </div> -->
                     </div>
                 </div>
                 {% endfor %}
