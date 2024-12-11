@@ -16,8 +16,6 @@ templates = Jinja2Templates(directory="templates")
 
 UserDependency = Annotated[dict, Depends(get_current_user_id)]
 
-ELASTIC_PASSWORD = os.getenv("ELASTIC_PASSWORD")
-
 es = Elasticsearch("http://elasticsearch:9200")
 
 @router.get("/{search_query}/page={page}")
