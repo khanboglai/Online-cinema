@@ -5,3 +5,4 @@ venv
 *.png
 *.csv
 ml_api/src/data/
+web_api/uploads/

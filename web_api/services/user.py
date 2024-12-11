@@ -1,4 +1,4 @@
-"""Routers with login, register and authentification"""
+"""Services with login, register and authentification"""
 from datetime import timedelta, datetime
 from typing import Annotated
 
@@ -69,6 +69,11 @@ async def get_current_user(request: Request) -> User | None:
 UserDependency = Annotated[User, Depends(get_current_user)]
 
 def get_age(birth_date: datetime) -> int:
+    '''
+    Get user age
+    :param birth_date:
+    :return:
+    '''
     return (
             datetime.now().year
             - birth_date.year
@@ -79,12 +84,23 @@ def get_age(birth_date: datetime) -> int:
     )
 
 async def check_username_available(username: str) -> bool:
+    '''
+    Check if the username is available.
+    :param username:
+    :return:
+    '''
     user = await dao.find_by_username(username)
     if user is None:
         return True
     return False
 
 async def edit_user(user: UserDependency, form: EditUserRequest) -> User:
+    '''
+    Edit user info
+    :param user:
+    :param form:
+    :return:
+    '''
     if form.username != user.username and await check_username_available(form.username):
         user.username = form.username
     if form.new_password:
