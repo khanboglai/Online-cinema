@@ -1,5 +1,4 @@
 import pandas as pd
-from collections import defaultdict
 from typing import Annotated
 from fastapi import APIRouter, Request, Depends
 from starlette.templating import Jinja2Templates

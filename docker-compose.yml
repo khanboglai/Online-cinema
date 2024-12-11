@@ -74,7 +74,6 @@ services:
     container_name: cinema_elasticsearch
     environment:
       - discovery.type=single-node
-      - ELASTIC_PASSWORD=passwd
     ports:
       - "9200:9200"
     volumes:
