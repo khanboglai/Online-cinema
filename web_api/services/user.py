@@ -1,4 +1,4 @@
-"""Routers with login, register and authentification"""
+"""Services with login, register and authentification"""
 from datetime import timedelta, datetime
 from typing import Annotated
 

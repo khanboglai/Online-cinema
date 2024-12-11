@@ -68,6 +68,37 @@ input:focus, select:focus {
   outline: none;
 }
 
+.file-upload {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.file-upload input[type="file"] {
+  display: none;
+}
+
+.file-upload-label {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border: 2px dashed #ddd;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.file-upload-label:hover {
+  border-color: var(--secondary);
+  background: #fff;
+}
+
+.file-name {
+  margin-left: 10px;
+  color: var(--accent);
+}
+
 button {
   background: var(--secondary);
   color: white;
@@ -103,24 +134,28 @@ button:hover {
 }
 
 .rating-options {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 10px;
+  display: flex;
+  gap: 15px;
   margin-top: 10px;
+  flex-wrap: wrap;
 }
 
-.rating-option {
-  padding: 8px;
+.rating-radio {
+  display: none;
+}
+
+.rating-label {
+  padding: 8px 16px;
   border: 2px solid #ddd;
   border-radius: 5px;
-  text-align: center;
   cursor: pointer;
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  display: inline-block;
 }
 
-.rating-option:before {
+.rating-label:before {
   content: '';
   position: absolute;
   top: 0;
@@ -136,17 +171,17 @@ button:hover {
   transition: 0.5s;
 }
 
-.rating-option:hover:before {
+.rating-label:hover:before {
   left: 100%;
 }
 
-.rating-option:hover {
+.rating-label:hover {
   border-color: var(--secondary);
   transform: translateY(-2px);
   box-shadow: 0 4px 8px rgba(229, 9, 20, 0.2);
 }
 
-.rating-option.selected {
+.rating-radio:checked + .rating-label {
   background: var(--secondary);
   color: white;
   border-color: var(--secondary);
