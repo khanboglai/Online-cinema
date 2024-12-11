@@ -21,7 +21,7 @@ ELASTIC_PASSWORD = os.getenv("ELASTIC_PASSWORD")
 es = Elasticsearch("http://elasticsearch:9200")
 
 @router.get("/{search_query}/page={page}")
-async def get_search_results_html(user: UserDependency, request: Request, search_query, page: int):
+async def get_search_results_html(user: UserDependency, request: Request, search_query: str, page: int):
     if user is None:
         return RedirectResponse(url="/login")
     else:
