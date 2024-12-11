@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Request
+from fastapi.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 from services.user import UserDependency
 from services.film import get_film

@@ -1,5 +1,6 @@
 from collections import defaultdict
 from fastapi import APIRouter, Request
+from fastapi.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 from services.user import UserDependency
 from services.search import get_search_results
@@ -26,4 +27,9 @@ async def get_search_results_html(user: UserDependency, request: Request, search
             return templates.TemplateResponse("search.html", {"request": request, "films": None})
         else:
             return templates.TemplateResponse("search.html", {"request": request, "films": images_by_tag})
+        
+@router.get("/suggestions/{search_query}")
+async def get_suggestions_query(request: Request, search_query: str):
+    response = await get_search_results(search_query, 1)
+    return {"suggestions": [{"id": hit["_id"], "title": hit["_source"]["title"]} for hit in response]}
             

@@ -2,6 +2,7 @@ import pandas as pd
 from collections import defaultdict
 from typing import Annotated
 from fastapi import APIRouter, Request, Depends
+from fastapi.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
 from services.user import UserDependency
 from services.film import get_film_title
