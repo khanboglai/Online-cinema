@@ -1,11 +1,9 @@
-import os
-from typing import Annotated
 from collections import defaultdict
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request
+from fastapi.responses import RedirectResponse
 from starlette.templating import Jinja2Templates
-from elasticsearch import Elasticsearch
-from routers.auth import get_current_user_id
-
+from services.user import UserDependency
+from services.search import get_search_results
 
 router = APIRouter(
     prefix='/search',
@@ -14,30 +12,14 @@ router = APIRouter(
 
 templates = Jinja2Templates(directory="templates")
 
-UserDependency = Annotated[dict, Depends(get_current_user_id)]
-
-es = Elasticsearch("http://elasticsearch:9200")
-
 @router.get("/{search_query}/page={page}")
 async def get_search_results_html(user: UserDependency, request: Request, search_query: str, page: int):
     if user is None:
         return RedirectResponse(url="/login")
     else:
-        # перенести в services
         images_by_tag = defaultdict(list)
-        response = es.search(
-            index="films",
-            body={
-                "from": (page - 1) * 10,
-                "size": 10,
-                "query": {
-                    "match_phrase_prefix": {
-                        "title": search_query
-                    }
-                },
-            }
-        )
-        for hit in response["hits"]["hits"]:
+        response = await get_search_results(search_query, page)
+        for hit in response:
             images_by_tag[f'Фильмы по запросу: "{search_query}"'].append({"cover": "/static/image.png",
                                                                           "name": hit["_source"]["title"],
                                                                           "id": hit["_id"]},)
@@ -45,4 +27,9 @@ async def get_search_results_html(user: UserDependency, request: Request, search
             return templates.TemplateResponse("search.html", {"request": request, "films": None})
         else:
             return templates.TemplateResponse("search.html", {"request": request, "films": images_by_tag})
+        
+@router.get("/suggestions/{search_query}")
+async def get_suggestions_query(request: Request, search_query: str):
+    response = await get_search_results(search_query, 1)
+    return {"suggestions": [{"id": hit["_id"], "title": hit["_source"]["title"]} for hit in response]}
             

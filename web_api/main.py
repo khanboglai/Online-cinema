@@ -1,10 +1,7 @@
 """App"""
-from typing import Annotated
-from fastapi import FastAPI, status, Depends
+from fastapi import FastAPI, status
 from fastapi.responses import RedirectResponse
 from starlette.staticfiles import StaticFiles
-from sqlalchemy.orm import Session
-from repository.database import SessionLocal
 from routers import auth, lk, home, upload_film, film, search
 from services.user import UserDependency
 

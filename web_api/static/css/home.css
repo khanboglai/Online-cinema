@@ -13,6 +13,42 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+.search-container {
+    position: relative;
+    width: 300px;
+}
+
+.search-suggestions {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--white-bg);
+    border-top: none;
+    border-radius: 0 0 20px 20px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    z-index: 1000;
+}
+
+.search-suggestions.active {
+    max-height: 500px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.suggestion-item:hover {
+    background-color: #ccc4c4;
+}
+
 body {
     background-color: var(--white-bg);
     color: var(--text-color);
@@ -62,7 +98,7 @@ nav {
     transition: background-color 0.3s ease;
 }
 
-.logout-btn:hover {
+.lk-btn:hover {
     background-color: var(--light-red);
 }
 
