@@ -10,8 +10,8 @@ from alembic import context
 
 from repository.database import Base, URL_DATABASE
 
-from models.user import User
-from models.film import Film
+from models.models import Auth, Profile, Film, Interaction
+
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

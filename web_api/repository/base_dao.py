@@ -22,7 +22,7 @@ class BaseDao:
             query = select(cls.model).filter_by(id=id)
             result = await session.execute(query)
             return result.scalar_one_or_none()
-
+    
     @classmethod
     async def get_all(cls):
         '''

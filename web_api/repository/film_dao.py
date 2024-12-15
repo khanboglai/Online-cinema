@@ -2,7 +2,7 @@
 FilmDao. Dao for Film.
 """
 
-from models.film import Film
+from models.models import Film
 from repository.base_dao import BaseDao
 from repository.database import async_session_maker
 

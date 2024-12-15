@@ -7,26 +7,23 @@ from sqlalchemy.future import select
 
 from repository.base_dao import BaseDao
 
-from models.user import User
+from models.models import Auth, Profile
 from repository.database import async_session_maker
 
-class UserDao(BaseDao):
-    model = User
+class ProfileDao(BaseDao):
+    """Обновление данных для лк"""
+    model = Profile
 
     @classmethod
-    async def find_by_username(cls, username: str) -> User:
-        '''
-        Find user by username.
-        :param username:
-        :return:
-        '''
+    async def find_by_auth_id(cls, id: int):
         async with async_session_maker() as session:
-            query = select(cls.model).filter_by(username=username)
+            query = select(cls.model).filter_by(auth_id=id)
             result = await session.execute(query)
             return result.scalar_one_or_none()
 
+
     @classmethod
-    async def update(cls, user: User):
+    async def update(cls, user: Profile):
         '''
         Update user info.
         :param user:
@@ -44,8 +41,26 @@ class UserDao(BaseDao):
             result = (await session.execute(query)).scalar_one()
             # for attr, value in data_to_update.items():
             #     setattr(result, attr, value)
-            result.username = user.username
+            result.name = user.name
+            result.surname = user.surname
             result.birth_date = user.birth_date
             result.sex = user.sex
-            result.hashed_password = user.hashed_password
+            result.email = user.email
             await session.commit()
+
+
+class AuthDao(BaseDao):
+    """Аутентификация для юзера при логине"""
+    model = Auth
+
+    @classmethod
+    async def find_by_username(cls, username: str) -> Auth:
+        '''
+        Find user by username.
+        :param username:
+        :return:
+        '''
+        async with async_session_maker() as session:
+            query = select(cls.model).filter_by(login=username)
+            result = await session.execute(query)
+            return result.scalar_one_or_none()

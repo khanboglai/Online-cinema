@@ -10,7 +10,7 @@ app = FastAPI()
 app.include_router(auth.router)
 app.include_router(lk.router)
 app.include_router(home.router)
-app.include_router(upload_film.router)
+# app.include_router(upload_film.router)
 app.include_router(film.router)
 app.include_router(search.router)
 

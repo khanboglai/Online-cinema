@@ -53,7 +53,7 @@ async def login(response: Response,
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail='Could not validate user.') # Update in nearest future
-    access_token = create_access_token(user.username,
+    access_token = create_access_token(user.login,
                                        user.id)
     response = RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))

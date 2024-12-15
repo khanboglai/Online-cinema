@@ -52,25 +52,25 @@ function handleSubmit(event) {
     isValid = false;
   }
 
-  const currentPassword = document.getElementById('currentPassword').value;
-  const newPassword = document.getElementById('newPassword').value;
-  const confirmPassword = document.getElementById('confirmPassword').value;
+  // const currentPassword = document.getElementById('currentPassword').value;
+  // const newPassword = document.getElementById('newPassword').value;
+  // const confirmPassword = document.getElementById('confirmPassword').value;
 
-  if (currentPassword.length === 0) {
-    document.getElementById('currentPasswordError').style.display = 'block';
-    isValid = false;
-  }
+  // if (currentPassword.length === 0) {
+  //   document.getElementById('currentPasswordError').style.display = 'block';
+  //   isValid = false;
+  // }
 
-  if (newPassword) {
-    if (newPassword.length < 8) {
-      document.getElementById('newPasswordError').style.display = 'block';
-      isValid = false;
-    }
-    if (newPassword !== confirmPassword) {
-      document.getElementById('confirmPasswordError').style.display = 'block';
-      isValid = false;
-    }
-  }
+  // if (newPassword) {
+  //   if (newPassword.length < 8) {
+  //     document.getElementById('newPasswordError').style.display = 'block';
+  //     isValid = false;
+  //   }
+  //   if (newPassword !== confirmPassword) {
+  //     document.getElementById('confirmPasswordError').style.display = 'block';
+  //     isValid = false;
+  //   }
+  // }
 
   const birthDate = new Date(document.getElementById('birthDate').value);
   const today = new Date();
@@ -91,17 +91,17 @@ function goBack() {
   window.location.href = '/lk';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('birthDate').value = '1990-01-01';
+// document.addEventListener('DOMContentLoaded', () => {
+//   document.getElementById('birthDate').value = '1990-01-01';
 
-  const inputs = document.querySelectorAll('input');
-  inputs.forEach(input => {
-    input.addEventListener('input', function() {
-      if (this.value) {
-        this.style.borderColor = '#4CAF50';
-      } else {
-        this.style.borderColor = '#ddd';
-      }
-    });
-  });
-});
+//   const inputs = document.querySelectorAll('input');
+//   inputs.forEach(input => {
+//     input.addEventListener('input', function() {
+//       if (this.value) {
+//         this.style.borderColor = '#4CAF50';
+//       } else {
+//         this.style.borderColor = '#ddd';
+//       }
+//     });
+//   });
+// });

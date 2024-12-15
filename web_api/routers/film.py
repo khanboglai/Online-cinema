@@ -23,3 +23,4 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
                                            "cover": "/static/image.png",
                                            "video": "/static/video.mp4",
                                             })
+    
