@@ -25,8 +25,8 @@ async def upload_film_html(request: Request):
 async def upload_film(
         response: Response,
         film_name: str = Form(...),
-        age_rating: str = Form(...),
-        director: str = Form(...),
+        age_rating: int = Form(...),
+        # director: str = Form(...),
         year: int = Form(...),
         country: str = Form(...),
         film_file: UploadFile = File(...)
@@ -42,11 +42,12 @@ async def upload_film(
     :param response:
     :return:
     '''
-
-    try:
-        await save_film(film_name, age_rating, director, year, country, film_file)
-    except Exception as e:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                      detail=repr(e))
+    # await save_film(film_name, age_rating, director, year, country, film_file)
+    await save_film(film_name, age_rating, year, country, film_file)
+    # try:
+    #     await save_film(film_name, age_rating, year, country, film_file)
+    # except Exception as e:
+    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+    #                   detail=repr(e))
 
     return Response(status_code=status.HTTP_200_OK)

@@ -15,10 +15,11 @@ class CreateUserRequest(BaseModel):
 
 class EditUserRequest(BaseModel):
     """Edit requset validation model"""
-    username: str | None = Field(None, description="Username")
-    new_password: str | None = Field(None, description="Password")
+    name: str | None = Field(None, description="Name")
+    surname: str | None = Field(None, description="Surname")
     birth_date: date | None = Field(None, description="Birth date")
     sex: str | None = Field(None, description="Sex")
+    email: str | None = Field(None, description="Email")
 
     @field_validator('birth_date')
     @classmethod

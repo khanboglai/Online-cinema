@@ -24,7 +24,9 @@
           <circle cx="50" cy="90" r="35" fill="#e50914"/>
           </svg>
           <div class="profile-info">
-            <h2>{{ username }}</h2>
+            {% if name is not none and surname is not none %}
+              <h2>{{ name }} {{ surname }}</h2>
+            {% endif %}
             <p>
               {% if age is not none %}
                 {{ age }} y.o.

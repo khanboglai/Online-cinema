@@ -74,6 +74,7 @@ services:
     container_name: cinema_elasticsearch
     environment:
       - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
     ports:
       - "9200:9200"
     volumes:
@@ -84,6 +85,11 @@ services:
       timeout: 10s
       retries: 5
     restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G 
 
 volumes:
   pgdata:

@@ -2,7 +2,7 @@ async function handleSubmit(event) {
     event.preventDefault();
 
     const movieName = document.getElementById('filmName').value;
-    const director = document.getElementById('director').value;
+    // const director = document.getElementById('director').value;
     const year = document.getElementById('year').value;
     const country = document.getElementById('country').value;
     const movieFile = document.getElementById('filmFile').files[0];
@@ -15,7 +15,7 @@ async function handleSubmit(event) {
         return;
     }
 
-    if (!movieName || !director || !year || !country || !movieFile) {
+    if (!movieName || !year || !country || !movieFile) {
         alert('Please fill in all required fields');
         return;
     }
@@ -24,10 +24,12 @@ async function handleSubmit(event) {
     const formData = new FormData();
     formData.append('film_name', movieName);
     formData.append('age_rating', rating);
-    formData.append('director', director);
+    // formData.append('director', director);
     formData.append('year', year);
     formData.append('country', country);
     formData.append('film_file', movieFile);
+
+    console.log(formData);
 
     try {
         const response = await fetch('http://localhost:8000/upload', {

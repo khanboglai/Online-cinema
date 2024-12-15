@@ -18,8 +18,8 @@ dao = FilmDao()
 
 async def save_film(
         film_name: str,
-        age_rating: str,
-        director: str,
+        age_rating: int,
+        # director: str,
         year: int,
         country: str,
         file: UploadFile):
@@ -35,14 +35,14 @@ async def save_film(
     film = await dao.add(
         name=film_name,
         age_rating=age_rating,
-        director=director,
+        # director=[director],
         year=year,
         country=country,
     )
 
     print("film added: " + film_name)
 
-    file_location = os.path.join(UPLOAD_FOLDER, str(film.id) + "_" + film.name)
+    file_location = os.path.join(UPLOAD_FOLDER, str(film.id) + "_" + film.name + ".mp4")
 
     async with aiofiles.open(file_location, "wb") as out_file:
         content = await file.read()
