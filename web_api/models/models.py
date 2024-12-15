@@ -45,6 +45,7 @@ class Film(Base):
     studios = Column(String)
     tags = Column(ARRAY(String))
     rating_kp = Column(Float)
+    age_rating = Column(Integer)
 
     # Связь 1 ко многим с таблицей Interaction
     interaction = relationship("Interaction", back_populates="film")
