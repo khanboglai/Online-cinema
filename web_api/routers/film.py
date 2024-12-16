@@ -5,6 +5,7 @@ from fastapi.responses import RedirectResponse, StreamingResponse
 from starlette.templating import Jinja2Templates
 from services.user import UserDependency
 from services.film import get_film_by_id
+from services.interaction import add_interaction
 
 router = APIRouter(
     prefix='/films',
@@ -18,16 +19,17 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
     if user is None:
         return RedirectResponse(url="/login")
     else:
+        await add_interaction(user.id, film_id)
         film = await get_film_by_id(film_id)
         return templates.TemplateResponse("film.html",
                                           {"request": request,
                                            "film": film,
                                            "cover": "/static/image.png",
-                                        #    "video": "/static/video.mp4",
                                             })
     
 @router.get("/video/{film_id}")
 async def get_video(request: Request, film_id: int):
+    """For streaming films"""
     # обращение к бд, чтобы достать путь к фильму по его айдишнику, пока хардкод
     video_path = "static/video.mp4"
     file_size = os.path.getsize(video_path)

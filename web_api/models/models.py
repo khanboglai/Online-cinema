@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Integer, DateTime, ForeignKey, ARRAY, Float, Time
+from sqlalchemy import Column, String, Integer, Date, ForeignKey, ARRAY, Float, DateTime
 from sqlalchemy.orm import relationship
 
 from repository.database import Base
@@ -20,7 +20,7 @@ class Profile(Base):
     auth_id = Column(Integer, ForeignKey('auth.id'))
     name = Column(String)
     surname = Column(String)
-    birth_date = Column(DateTime)
+    birth_date = Column(Date)
     sex = Column(String)
     ebals = Column(Integer)
     email = Column(String, unique=True)
@@ -55,7 +55,7 @@ class Interaction(Base):
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profile.id'))
     film_id = Column(Integer, ForeignKey('film.id'))
-    last_interaction = Column(Time)
+    last_interaction = Column(DateTime)
     count_interaction = Column(Integer)
 
     profile = relationship("Profile", back_populates="interaction")

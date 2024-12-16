@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: 03d4a46ccb13
+Revision ID: 2e33c2b4b93d
 Revises: 
-Create Date: 2024-12-16 16:29:51.594909
+Create Date: 2024-12-16 21:39:23.153418
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '03d4a46ccb13'
+revision: str = '2e33c2b4b93d'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -49,7 +49,7 @@ def upgrade() -> None:
     sa.Column('auth_id', sa.Integer(), nullable=True),
     sa.Column('name', sa.String(), nullable=True),
     sa.Column('surname', sa.String(), nullable=True),
-    sa.Column('birth_date', sa.DateTime(), nullable=True),
+    sa.Column('birth_date', sa.Date(), nullable=True),
     sa.Column('sex', sa.String(), nullable=True),
     sa.Column('ebals', sa.Integer(), nullable=True),
     sa.Column('email', sa.String(), nullable=True),
@@ -61,7 +61,7 @@ def upgrade() -> None:
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('profile_id', sa.Integer(), nullable=True),
     sa.Column('film_id', sa.Integer(), nullable=True),
-    sa.Column('last_interaction', sa.Time(), nullable=True),
+    sa.Column('last_interaction', sa.DateTime(), nullable=True),
     sa.Column('count_interaction', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['film_id'], ['film.id'], ),
     sa.ForeignKeyConstraint(['profile_id'], ['profile.id'], ),
