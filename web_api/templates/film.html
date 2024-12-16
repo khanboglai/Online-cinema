@@ -1,7 +1,7 @@
 <html><head><base href="." />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ film['title'].values[0] }}</title>
+    <title>{{ film.name }}</title>
     <link rel="stylesheet" type="text/css" href="/static/css/film.css">
     </head>
     <body>
@@ -20,8 +20,8 @@
         </header>
     
         <div class="video-container">
-            {% if film['rating_kp'].values[0] != -1 %}
-            <div class="film-rating">{{ film['rating_kp'].values[0] }}/10 ⭐</div>
+            {% if film.rating_kp != -1 %}
+            <div class="film-rating">{{ film.rating_kp }}/10 ⭐</div>
             {% endif %}
             <div class="cover-overlay" id="coverOverlay">
                 <div class="play-button">
@@ -31,11 +31,11 @@
                 </div>
             </div>
             <img src="{{ cover }}" 
-                 alt="{{ film['title'].values[0] }}" 
+                 alt="{{ film.name }}" 
                  class="film-cover" 
                  id="filmCover">
             <video class="video-player" id="videoPlayer">
-                <source src="http://localhost:8000/films/video/{{ film['item_id'].values[0] }}" type="video/mp4">
+                <source src="http://localhost:8000/films/video/{{ film.id }}" type="video/mp4">
             </video>
             <div class="video-controls">
                 <button class="control-btn" id="playPauseBtn">
@@ -56,20 +56,22 @@
         </div>
     
         <div class="movie-info">
-            <h1 class="movie-title">{{ film['title'].values[0] }}</h1>
+            <h1 class="movie-title">{{ film.name }}</h1>
             <div class="movie-meta">
-                {% if film['date'].values[0] != 0 %}
-                    {{ film['date'].values[0] }}
+                {% if film.year != 0 %}
+                    {{ film.year }}
                 {% endif %}
-                {% if film['genres'].values[0] %}
-                    {{ film['genres'].values[0] }}
+                {% if film.genres %}
+                    {% for genre in film.genres %}
+                        · {{ genre }}
+                    {% endfor %}
                 {% endif %}
             </div>
             <h2 class="movie-description">
                 Описание:
             </h2>
             <p class="movie-description">
-                {{ film['description'].values[0] }}
+                {{ film.description }}
             </p>
         </div>
     

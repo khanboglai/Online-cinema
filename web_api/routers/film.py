@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request, Response
 from fastapi.responses import RedirectResponse, StreamingResponse
 from starlette.templating import Jinja2Templates
 from services.user import UserDependency
-from services.film import get_film
+from services.film import get_film_by_id
 
 router = APIRouter(
     prefix='/films',
@@ -18,7 +18,7 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
     if user is None:
         return RedirectResponse(url="/login")
     else:
-        film = await get_film(film_id)
+        film = await get_film_by_id(film_id)
         return templates.TemplateResponse("film.html",
                                           {"request": request,
                                            "film": film,
