@@ -31,11 +31,11 @@
                 </div>
             </div>
             <img src="{{ cover }}" 
-                 alt="{{ film['title'] }}" 
+                 alt="{{ film['title'].values[0] }}" 
                  class="film-cover" 
                  id="filmCover">
             <video class="video-player" id="videoPlayer">
-                <source src="{{ video }}" type="video/mp4">
+                <source src="http://localhost:8000/films/video/{{ film['item_id'].values[0] }}" type="video/mp4">
             </video>
             <div class="video-controls">
                 <button class="control-btn" id="playPauseBtn">

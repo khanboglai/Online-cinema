@@ -41,7 +41,7 @@ class Film(Base):
     actors = Column(ARRAY(String))
     genres = Column(ARRAY(String))
     year = Column(Integer)
-    country = Column(String)
+    countries = Column(ARRAY(String))
     studios = Column(String)
     tags = Column(ARRAY(String))
     rating_kp = Column(Float)
