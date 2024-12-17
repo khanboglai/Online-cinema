@@ -5,7 +5,7 @@ from fastapi.responses import RedirectResponse, StreamingResponse
 from starlette.templating import Jinja2Templates
 from services.user import UserDependency
 from services.film import get_film_by_id
-from services.interaction import add_interaction
+from services.interaction import add_interaction, add_time_into_interaction
 
 router = APIRouter(
     prefix='/films',
@@ -76,4 +76,9 @@ async def get_video(request: Request, film_id: int):
     #             yield chunk
 
     # return StreamingResponse(video_stream(), media_type="video/mp4")
+
+@router.post('/watchtime/{film_id}')
+async def record_watchtime(user: UserDependency, film_id: int, time_watched: dict):
+    time = time_watched.get("timeWatched")
+    await add_time_into_interaction(user.id, film_id, time)
     
