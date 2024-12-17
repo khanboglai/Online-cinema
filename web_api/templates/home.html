@@ -7,7 +7,7 @@
     <body>
         <header>
             <nav>
-                <div class="logo">ChocoPy</div>
+                <a href="/home" class="logo" style="text-decoration: none;">ChocoPy</a>
                 <div class="search-container">
                     <input type="text" class="search-bar" name="query" placeholder="Search films..." oninput="handleInput(event)" onkeypress="handleKeyPress(event)">
                     <div class="search-suggestions" id="suggestions">
@@ -20,6 +20,7 @@
         </header>
     
         <div class="container">
+            {% if films is not none %}
             {% for tag, images in films.items() %}
             <h2 class="section-title">{{ tag }}</h2>
             <div class="main-content">
@@ -39,6 +40,7 @@
             </div>
             {% endfor %}
         </div>
+        {% endif %}
     
         <script src="/static/js/home.js"></script>
     </body>
