@@ -32,3 +32,18 @@ class InteractionDao(BaseDao):
             result.last_interaction = datetime.now()
             result.count_interaction += 1
             await session.commit()
+
+    @classmethod
+    async def update_time(cls, interaction: Interaction):
+        data_to_update = vars(interaction).copy()
+        data_to_update.pop('id', None)
+
+        async with async_session_maker() as session:
+            query = (
+                select(cls.model)
+                .filter_by(id = interaction.id)
+            )
+
+            result = (await session.execute(query)).scalar_one()
+            result.watchtime = interaction.watchtime
+            await session.commit()

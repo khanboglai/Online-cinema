@@ -60,6 +60,58 @@ progressBar.addEventListener('click', (e) => {
     video.currentTime = pos * video.duration;
 });
 
+const videoPlayer = document.getElementById('videoPlayer');
+const filmId = document.getElementById('filmId').value;
+let lastSentTime = 0; // Хранит последнее отправленное время
+let sendInterval = 5; // Интервал отправки в секундах
+let sendTimeout; // Таймер для отправки данных
+
+async function sendWatchTime(currentTime) {
+    await fetch(`/films/watchtime/${filmId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ timeWatched: Math.floor(currentTime) }),
+        credentials: 'include'
+    });
+}
+
+// Функция для обработки отправки времени
+function handleSendTime() {
+    const currentTime = videoPlayer.currentTime;
+    if (Math.floor(currentTime) !== lastSentTime) {
+        lastSentTime = Math.floor(currentTime);
+        sendWatchTime(currentTime);
+    }
+    // Устанавливаем таймер для следующей отправки
+    sendTimeout = setTimeout(handleSendTime, sendInterval * 1000);
+}
+
+// Запускаем отправку времени при начале воспроизведения
+videoPlayer.addEventListener('play', () => {
+    handleSendTime(); // Начинаем отправку времени
+});
+
+// Останавливаем отправку времени при паузе
+videoPlayer.addEventListener('pause', () => {
+    clearTimeout(sendTimeout); // Останавливаем таймер
+});
+
+// Останавливаем отправку времени при завершении видео
+videoPlayer.addEventListener('ended', () => {
+    clearTimeout(sendTimeout); // Останавливаем таймер
+    sendWatchTime(videoPlayer.currentTime); // Отправляем последнее время
+});
+
+// Обработчик события visibilitychange
+document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'hidden') {
+        clearTimeout(sendTimeout); // Останавливаем таймер
+        await sendWatchTime(videoPlayer.currentTime); // Отправляем текущее время
+    }
+});
+
 // Add search functionality
 function handleKeyPress(event) {
     if (event.key === 'Enter') {

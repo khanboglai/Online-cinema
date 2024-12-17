@@ -57,6 +57,7 @@ class Interaction(Base):
     film_id = Column(Integer, ForeignKey('film.id'))
     last_interaction = Column(DateTime)
     count_interaction = Column(Integer)
+    watchtime = Column(Integer)
 
     profile = relationship("Profile", back_populates="interaction")
 
