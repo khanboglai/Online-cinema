@@ -6,6 +6,7 @@ import aiofiles
 import boto3.exceptions
 from fastapi import UploadFile, Form
 import boto3
+from boto3.s3.transfer import TransferConfig
 from repository.film_dao import FilmDao
 
 
@@ -27,6 +28,14 @@ s3_client = boto3.client(
 )
 
 BUCKET_NAME = 'storage-cinema'
+
+# Настройка конфигурации для многочастной загрузки
+config = TransferConfig(
+    multipart_threshold=1024 * 25,  # Порог для многочастной загрузки (25 МБ)
+    max_concurrency=10,              # Максимальное количество параллельных загрузок
+    multipart_chunksize=1024 * 25,   # Размер частей (25 МБ)
+    use_threads=True                  # Использовать потоки
+)
 
 # засунуть это в главный файл при запуске приложения создавать
 try:
@@ -74,7 +83,7 @@ async def save_film(
 
     try:
         # загрузка файла (фильма) в s3 
-        s3_client.upload_file(file_location, BUCKET_NAME, f"{film.id}/{film.name}.mp4")
+        s3_client.upload_file(file_location, BUCKET_NAME, f"{film.id}/{film.name}.mp4", Config=config)
         # удаление файла с сервера
         os.remove(file_location)
 
