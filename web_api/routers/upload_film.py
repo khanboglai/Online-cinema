@@ -42,8 +42,10 @@ async def upload_film(
     :param response:
     :return:
     '''
+
+    print("Here")
     # await save_film(film_name, age_rating, director, year, country, film_file)
-    await save_film(film_name, age_rating, year, country, film_file)
+    await save_film(film_name, age_rating, year, film_file)
     # try:
     #     await save_film(film_name, age_rating, year, country, film_file)
     # except Exception as e:

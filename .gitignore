@@ -8,3 +8,4 @@ ml_api/src/data/
 web_api/uploads/
 *.mp4
 *.txt
+transform.py

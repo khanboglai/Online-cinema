@@ -91,8 +91,21 @@ services:
           cpus: '0.5'
           memory: 1G 
 
+  storage:
+    image: minio/minio
+    ports:
+      - "9000:9000"  # Порт для доступа к MinIO
+      - "9001:9001"  # Порт для веб-консоли
+    environment:
+      MINIO_ACCESS_KEY: storage
+      MINIO_SECRET_KEY: qwerty2024
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data  # Хранение данных MinIO
+
 volumes:
   pgdata:
     driver: local
   esdata:
     driver: local
+  minio_data:
