@@ -60,14 +60,14 @@ services:
     volumes:
       - ./web_api:/app
 
-  ml:
-    build: 
-      context: ./ml_api
-      dockerfile: Dockerfile_ml
-    container_name: ml
-    restart: always
-    ports:
-      - "8080:8000"
+  # ml:
+  #   build: 
+  #     context: ./ml_api
+  #     dockerfile: Dockerfile_ml
+  #   container_name: ml
+  #   restart: always
+  #   ports:
+  #     - "8080:8000"
 
   elasticsearch:
     image: elasticsearch:7.17.26
