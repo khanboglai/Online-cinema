@@ -2,7 +2,7 @@
     --primary-red: #e50914;
     --light-red: #ff4444;
     --white-bg: #ffffff;
-    --card-bg: #f8f8f8;
+    --card-bg: #d12c2c8a;
     --text-color: #333333;
 }
 
@@ -160,10 +160,11 @@ nav {
 
 .movie-info {
     padding: 20px;
-    background: var(--card-bg);
+    background: var(--primary-red);
     margin: 20px auto;
     max-width: 1200px;
     border-radius: 8px;
+    color: #ffffff;
 }
 
 .similar-movies {

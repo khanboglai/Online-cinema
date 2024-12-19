@@ -49,9 +49,14 @@ dao = FilmDao()
 async def save_film(
         film_name: str,
         age_rating: int,
-        # director: str,
+        director: str,
         year: int,
-        # country: str, # исправить говно
+        country: str,
+        description: str,
+        actor: str,
+        genre: str,
+        studios: str,
+        tags: str,
         file: UploadFile):
     '''
     Service for saving films into storage
@@ -60,14 +65,26 @@ async def save_film(
     :return:
     '''
 
+    directors_array = [item.strip() for item in director.split(',')]
+    countries_array = [item.strip() for item in country.split(',')]
+    actors_array = [item.strip() for item in actor.split(',')]
+    genres_array = [item.strip() for item in genre.split(',')]
+    tags_array = [item.strip() for item in tags.split(',')]
+
+
     logger.info("Save film")
 
     film = await dao.add(
         name=film_name,
         age_rating=age_rating,
-        # director=[director],
+        directors=directors_array,
         year=year,
-        # country=country,
+        countries=countries_array,
+        description=description,
+        actors=actors_array,
+        genres=genres_array,
+        studios=studios,
+        tags=tags_array
     )
 
     logger.info(f"film added: {film_name}")

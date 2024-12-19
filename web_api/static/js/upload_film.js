@@ -4,6 +4,12 @@ async function handleSubmit(event) {
   const movieName = document.getElementById('filmName').value;
   const year = document.getElementById('year').value;
   const country = document.getElementById('country').value;
+  const description = document.getElementById('description').value;
+  const actor = document.getElementById('actor').value;
+  const genre = document.getElementById('genre').value;
+  const studios = document.getElementById('studios').value;
+  const tags = document.getElementById('tags').value;
+  const director = document.getElementById('director').value;
   const movieFile = document.getElementById('filmFile').files[0];
 
   const selectedRating = document.querySelector('input[name="age_rating"]:checked');
@@ -14,7 +20,7 @@ async function handleSubmit(event) {
       return;
   }
 
-  if (!movieName || !year || !country || !movieFile) {
+  if (!movieName || !year || !country || !description || !actor || !genre || !studios || !tags || !movieFile || !director) {
       alert('Please fill in all required fields');
       return;
   }
@@ -30,6 +36,12 @@ async function handleSubmit(event) {
   formData.append('year', year);
   formData.append('country', country);
   formData.append('film_file', movieFile);
+  formData.append('director', director);
+  formData.append('description', description);
+  formData.append('actor', actor);
+  formData.append('genre', genre);
+  formData.append('studios', studios);
+  formData.append('tags', tags);
 
   try {
       const response = await fetch('http://localhost:8000/upload', {
@@ -94,4 +106,12 @@ document.addEventListener('DOMContentLoaded', () => {
       fileName.textContent = 'Choose a file...';
     }
   });
+});
+
+document.getElementById('filmFile').addEventListener('change', function(event) {
+  const file = event.target.files[0];
+  if (file && file.type !== 'video/mp4') {
+      alert('Пожалуйста, загрузите файл в формате MP4.');
+      event.target.value = '';
+  }
 });
