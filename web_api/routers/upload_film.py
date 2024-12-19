@@ -56,7 +56,7 @@ async def upload_film(
     if film_cover.content_type != 'image/png':
         raise HTTPException(status_code=400, detail="Файл должен быть в формате PNG")
     
-    print("Here")
+
     try:
         await save_film(film_name, age_rating, director, year, country, description, actor, genre, studios, tags, film_file, film_cover)
     except Exception as e:

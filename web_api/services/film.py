@@ -3,7 +3,7 @@
 import os
 import logging
 import aiofiles
-import boto3.exceptions
+from boto3.exceptions import Boto3Error
 from fastapi import UploadFile, Form
 import boto3
 from boto3.s3.transfer import TransferConfig
@@ -14,8 +14,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-UPLOAD_FOLDER = "/app/uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# UPLOAD_FOLDER = "/app/uploads"
+# os.makedirs(UPLOAD_FOLDER, mode=0o777, exist_ok=True)
 
 
 # тестово
@@ -29,13 +29,13 @@ s3_client = boto3.client(
 
 BUCKET_NAME = 'storage-cinema'
 
-# Настройка конфигурации для многочастной загрузки
-config = TransferConfig(
-    multipart_threshold=1024 * 25,  # Порог для многочастной загрузки (25 МБ)
-    max_concurrency=10,              # Максимальное количество параллельных загрузок
-    multipart_chunksize=1024 * 25,   # Размер частей (25 МБ)
-    use_threads=True                  # Использовать потоки
-)
+# # Настройка конфигурации для многочастной загрузки
+# config = TransferConfig(
+#     multipart_threshold=1024 * 25,  # Порог для многочастной загрузки (25 МБ)
+#     max_concurrency=10,              # Максимальное количество параллельных загрузок
+#     multipart_chunksize=1024 * 25,   # Размер частей (25 МБ)
+#     use_threads=True                  # Использовать потоки
+# )
 
 # засунуть это в главный файл при запуске приложения создавать
 try:
@@ -90,29 +90,33 @@ async def save_film(
 
     logger.info(f"film added: {film_name}")
 
-    file_location = os.path.join(UPLOAD_FOLDER, str(film.id) + "_" + film.name + ".mp4")
-    cover_location = os.path.join(UPLOAD_FOLDER, str(film.id) + "_" + film.name + ".png")
 
-    async with aiofiles.open(file_location, "wb") as out_file:
-        content = await file.read()
-        await out_file.write(content)
-        logger.info("File created in directory upload")
+    try:
+        # загрузка файла (обожки) в s3
+        file_content = await cover.read()
+        s3_client.put_object(
+            Bucket=BUCKET_NAME,
+            Key=f"{film.id}/{film.name}.png",
+            Body=file_content,
+            ContentLength=len(file_content)
+        )
 
-    async with aiofiles.open(cover_location, "wb") as out_file:
-        content = await file.read()
-        await out_file.write(content)
-        logger.info("File created in directory upload")
-
-    # ДОБАВИТЬ ЗАГРУЗКУ ОБЛОЖКИ ФИЛЬМА
+        logger.info("Cover file uploaded successfully")
+    except Boto3Error as e:
+        logger.error(f"Problems: {e}")
 
     try:
         # загрузка файла (фильма) в s3 
-        s3_client.upload_file(file_location, BUCKET_NAME, f"{film.id}/{film.name}.mp4", Config=config)
-        # удаление файла с сервера
-        os.remove(file_location)
 
-        logger.info("Uploaded file and removed from uploads")
-    except boto3.exceptions as e:
+        file_content = await file.read()
+        s3_client.put_object(
+            Bucket=BUCKET_NAME,
+            Key=f"{film.id}/{film.name}.mp4",
+            Body=file_content,
+            ContentLength=len(file_content)
+        )
+        logger.info("Film file uploaded successfully")
+    except Boto3Error as e:
         logger.error(f"Problems: {e}")
 
 

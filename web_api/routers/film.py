@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request, Response, HTTPException
 from fastapi.responses import RedirectResponse, StreamingResponse
 from starlette.templating import Jinja2Templates
 import boto3
+from boto3.exceptions import Boto3Error
 from services.user import UserDependency
 from services.film import get_film_by_id
 from services.interaction import add_interaction, add_time_into_interaction
@@ -44,10 +45,24 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
     else:
         await add_interaction(user.id, film_id)
         film = await get_film_by_id(film_id)
+
+        cover_key = f"{film.id}/{film.name}.png"  # Замените на правильный путь к обложке
+        try:
+            cover_url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': BUCKET_NAME, 'Key': cover_key},
+                ExpiresIn=3600  # Время жизни URL в секундах
+            )
+            cover_url = cover_url.replace("storage", "localhost", 1)
+        except Boto3Error as e:
+            cover_url = "/static/image.png" 
+        
+        
+
         return templates.TemplateResponse("film.html",
                                           {"request": request,
                                            "film": film,
-                                           "cover": "/static/image.png"})
+                                           "cover": cover_url})
 
     
 @router.get("/video/{film_id}")
