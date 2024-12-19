@@ -36,7 +36,8 @@ async def upload_film(
         genre: str = Form(...),
         studios: str = Form(...),
         tags: str = Form(...),
-        film_file: UploadFile = File(...)
+        film_file: UploadFile = File(...),
+        film_cover: UploadFile = File(...)
 ):
     '''
     POST (/upload) endpoint
@@ -52,9 +53,12 @@ async def upload_film(
     if film_file.content_type != 'video/mp4':
         raise HTTPException(status_code=400, detail="Файл должен быть в формате MP4")
     
+    if film_cover.content_type != 'image/png':
+        raise HTTPException(status_code=400, detail="Файл должен быть в формате PNG")
+    
     print("Here")
     try:
-        await save_film(film_name, age_rating, director, year, country, description, actor, genre, studios, tags, film_file)
+        await save_film(film_name, age_rating, director, year, country, description, actor, genre, studios, tags, film_file, film_cover)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                       detail=repr(e))

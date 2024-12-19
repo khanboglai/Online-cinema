@@ -11,6 +11,7 @@ async function handleSubmit(event) {
   const tags = document.getElementById('tags').value;
   const director = document.getElementById('director').value;
   const movieFile = document.getElementById('filmFile').files[0];
+  const movieCover = document.getElementById('filmImage').files[0];
 
   const selectedRating = document.querySelector('input[name="age_rating"]:checked');
   const rating = selectedRating ? selectedRating.value : null;
@@ -20,7 +21,7 @@ async function handleSubmit(event) {
       return;
   }
 
-  if (!movieName || !year || !country || !description || !actor || !genre || !studios || !tags || !movieFile || !director) {
+  if (!movieName || !year || !country || !description || !actor || !genre || !studios || !tags || !movieFile || !director || !movieCover) {
       alert('Please fill in all required fields');
       return;
   }
@@ -36,6 +37,7 @@ async function handleSubmit(event) {
   formData.append('year', year);
   formData.append('country', country);
   formData.append('film_file', movieFile);
+  formData.append('film_cover', movieCover);
   formData.append('director', director);
   formData.append('description', description);
   formData.append('actor', actor);
@@ -104,6 +106,19 @@ document.addEventListener('DOMContentLoaded', () => {
       fileName.textContent = this.files[0].name;
     } else {
       fileName.textContent = 'Choose a file...';
+    }
+  });
+
+  const coverInput = document.getElementById('filmImage');
+  const coverName = document.querySelector('.img-name');
+
+  coverInput.addEventListener('change', function() {
+    if (this.files && this.files[0])
+    {
+      coverName.textContent = this.files[0].name;
+    } else
+    {
+      coverName.textContent = 'Choose a file...';
     }
   });
 });

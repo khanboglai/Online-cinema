@@ -57,7 +57,8 @@ async def save_film(
         genre: str,
         studios: str,
         tags: str,
-        file: UploadFile):
+        file: UploadFile,
+        cover: UploadFile):
     '''
     Service for saving films into storage
     :param file:
@@ -90,8 +91,14 @@ async def save_film(
     logger.info(f"film added: {film_name}")
 
     file_location = os.path.join(UPLOAD_FOLDER, str(film.id) + "_" + film.name + ".mp4")
+    cover_location = os.path.join(UPLOAD_FOLDER, str(film.id) + "_" + film.name + ".png")
 
     async with aiofiles.open(file_location, "wb") as out_file:
+        content = await file.read()
+        await out_file.write(content)
+        logger.info("File created in directory upload")
+
+    async with aiofiles.open(cover_location, "wb") as out_file:
         content = await file.read()
         await out_file.write(content)
         logger.info("File created in directory upload")
