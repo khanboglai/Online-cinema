@@ -204,8 +204,11 @@ async function loadComments() {
     comments.forEach(comment => {
         const commentDiv = document.createElement('div');
         commentDiv.classList.add('comment');
+        const username = (comment.name && comment.surname) 
+            ? `${comment.name} ${comment.surname}` 
+            : 'No name';
         commentDiv.innerHTML = `
-            <div class="username">${comment.name} ${comment.surname}</div>
+            <div class="username">${username}</div>
             <div class="rating">Оценка: ${comment.rating}/10</div>
             <div class="text">${comment.text}</div>
         `;

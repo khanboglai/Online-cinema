@@ -43,6 +43,8 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
         except Boto3Error as e:
             cover_url = "/static/image.png" 
         
+        if film.rating_kp is not None:
+            film.rating_kp = round(film.rating_kp, 1)   
         
 
         return templates.TemplateResponse("film.html",
