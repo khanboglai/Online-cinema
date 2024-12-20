@@ -4,8 +4,9 @@ import logging
 from fastapi import APIRouter, Request, Response, HTTPException
 from fastapi.responses import RedirectResponse, StreamingResponse
 from starlette.templating import Jinja2Templates
-import boto3
 from boto3.exceptions import Boto3Error
+
+from config import s3_client, BUCKET_NAME
 from services.user import UserDependency
 from services.film import get_film_by_id
 from services.interaction import add_interaction, add_time_into_interaction
@@ -21,22 +22,6 @@ templates = Jinja2Templates(directory="templates")
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# тестово
-# засунуть это в один файл
-s3_client = boto3.client(
-    's3',
-    endpoint_url='http://storage:9000',
-    aws_access_key_id='storage',
-    aws_secret_access_key='qwerty2024',
-)
-
-BUCKET_NAME = 'storage-cinema'
-
-# засунуть это в главный файл при запуске приложения создавать
-try:
-    s3_client.create_bucket(Bucket=BUCKET_NAME)
-except Exception as e:
-    logger.warning(f"S3: {e}")
     
 @router.get("/{film_id}")
 async def get_film_html(user: UserDependency, request: Request, film_id: int):

@@ -1,47 +1,14 @@
 """ Service layer for films. """
 
-import os
 import logging
-import aiofiles
 from boto3.exceptions import Boto3Error
 from fastapi import UploadFile, Form
-import boto3
-from boto3.s3.transfer import TransferConfig
+from config import s3_client, BUCKET_NAME
 from repository.film_dao import FilmDao
 
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
-
-# UPLOAD_FOLDER = "/app/uploads"
-# os.makedirs(UPLOAD_FOLDER, mode=0o777, exist_ok=True)
-
-
-# тестово
-# засунуть это в один файл
-s3_client = boto3.client(
-    's3',
-    endpoint_url='http://storage:9000',
-    aws_access_key_id='storage',
-    aws_secret_access_key='qwerty2024',
-)
-
-BUCKET_NAME = 'storage-cinema'
-
-# # Настройка конфигурации для многочастной загрузки
-# config = TransferConfig(
-#     multipart_threshold=1024 * 25,  # Порог для многочастной загрузки (25 МБ)
-#     max_concurrency=10,              # Максимальное количество параллельных загрузок
-#     multipart_chunksize=1024 * 25,   # Размер частей (25 МБ)
-#     use_threads=True                  # Использовать потоки
-# )
-
-# засунуть это в главный файл при запуске приложения создавать
-try:
-    s3_client.create_bucket(Bucket=BUCKET_NAME)
-except Exception as e:
-    logger.warning(f"S3: {e}")
 
 
 dao = FilmDao()

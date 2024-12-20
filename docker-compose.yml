@@ -92,7 +92,7 @@ services:
           memory: 1G 
 
   storage:
-    image: minio/minio
+    image: minio/minio:latest
     ports:
       - "9000:9000"  # Порт для доступа к MinIO
       - "9001:9001"  # Порт для веб-консоли
