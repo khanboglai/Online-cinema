@@ -89,6 +89,10 @@ async def get_film_by_id(film_id: int):
     # Пока что не может быть, чтобы не было такого фильма, так как он берется из хранилки эластика
     return film
 
+async def get_newest_films():
+    films = await dao.find_newest_films()
+    return films
+
 async def add_comment_to_db(comment: CommentRequest):
     profile = await user_dao.find_by_auth_id(comment.user_id)
 

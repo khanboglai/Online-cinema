@@ -38,4 +38,16 @@ class FilmDao(BaseDao):
             result.rating_kp = film.rating_kp
             await session.commit()
 
+    @classmethod
+    async def find_newest_films(cls):
+        async with async_session_maker() as session:
+            query = (
+                select(cls.model)
+                .order_by(cls.model.year.desc())
+                .limit(9)
+            )
+
+            result = (await session.execute(query)).scalars().all()
+            return result
+
 
