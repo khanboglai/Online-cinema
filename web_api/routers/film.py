@@ -31,7 +31,7 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
         await add_interaction(user.id, film_id)
         film = await get_film_by_id(film_id)
 
-        cover_key = f"{film.id}/image.png"  # Замените на правильный путь к обложке
+        cover_key = f"{film.id}/image.png"
         try:
             cover_url = s3_client.generate_presigned_url(
                 'get_object',

@@ -2,9 +2,10 @@
 
 import logging
 from boto3.exceptions import Boto3Error
-from fastapi import UploadFile, Form
 from config import s3_client, BUCKET_NAME
 from repository.film_dao import FilmDao
+from services.search import add_document
+from schemas.film import SaveFilmRequest
 
 
 logging.basicConfig(level=logging.INFO)
@@ -13,54 +14,43 @@ logger = logging.getLogger(__name__)
 
 dao = FilmDao()
 
-async def save_film(
-        film_name: str,
-        age_rating: int,
-        director: str,
-        year: int,
-        country: str,
-        description: str,
-        actor: str,
-        genre: str,
-        studios: str,
-        tags: str,
-        file: UploadFile,
-        cover: UploadFile):
+async def save_film(film_request: SaveFilmRequest):
     '''
     Service for saving films into storage
     :param file:
     :param upload_form:
     :return:
     '''
-
-    directors_array = [item.strip() for item in director.split(',')]
-    countries_array = [item.strip() for item in country.split(',')]
-    actors_array = [item.strip() for item in actor.split(',')]
-    genres_array = [item.strip() for item in genre.split(',')]
-    tags_array = [item.strip() for item in tags.split(',')]
+    directors_array = [item.strip() for item in film_request.director.split(',')]
+    countries_array = [item.strip() for item in film_request.country.split(',')]
+    actors_array = [item.strip() for item in film_request.actor.split(',')]
+    genres_array = [item.strip() for item in film_request.genre.split(',')]
+    tags_array = [item.strip() for item in film_request.tags.split(',')]
 
 
     logger.info("Save film")
 
     film = await dao.add(
-        name=film_name,
-        age_rating=age_rating,
+        name=film_request.film_name,
+        age_rating=film_request.age_rating,
         directors=directors_array,
-        year=year,
+        year=film_request.year,
         countries=countries_array,
-        description=description,
+        description=film_request.description,
         actors=actors_array,
         genres=genres_array,
-        studios=studios,
+        studios=film_request.studios,
         tags=tags_array
     )
 
-    logger.info(f"film added: {film_name}")
+    logger.info(f"film added: {film_request.film_name}")
 
+    # добавление записи в эластик
+    await add_document(film.name, film.id)
 
     try:
         # загрузка файла (обожки) в s3
-        file_content = await cover.read()
+        file_content = await film_request.cover.read()
         s3_client.put_object(
             Bucket=BUCKET_NAME,
             Key=f"{film.id}/image.png",
@@ -75,7 +65,7 @@ async def save_film(
     try:
         # загрузка файла (фильма) в s3 
 
-        file_content = await file.read()
+        file_content = await film_request.file.read()
         s3_client.put_object(
             Bucket=BUCKET_NAME,
             Key=f"{film.id}/video.mp4",

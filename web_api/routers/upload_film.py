@@ -9,6 +9,7 @@ from starlette.responses import Response, RedirectResponse
 from config import templates
 from services.film import save_film
 from services.user import UserDependency
+from schemas.film import SaveFilmRequest
 
 router = APIRouter(prefix="/upload")
 
@@ -36,8 +37,8 @@ async def upload_film(
         genre: str = Form(...),
         studios: str = Form(...),
         tags: str = Form(...),
-        film_file: UploadFile = File(...),
-        film_cover: UploadFile = File(...)
+        file: UploadFile = File(...),
+        cover: UploadFile = File(...)
 ):
     '''
     POST (/upload) endpoint
@@ -50,15 +51,16 @@ async def upload_film(
     :param response:
     :return:
     '''
-    if film_file.content_type != 'video/mp4':
+    if file.content_type != 'video/mp4':
         raise HTTPException(status_code=400, detail="Файл должен быть в формате MP4")
     
-    if film_cover.content_type != 'image/png':
+    if cover.content_type != 'image/png':
         raise HTTPException(status_code=400, detail="Файл должен быть в формате PNG")
     
+    film = SaveFilmRequest(film_name=film_name, age_rating=age_rating, director=director, year=year, country=country, description=description, actor=actor, genre=genre, studios=studios, tags=tags, file=file, cover=cover)
 
     try:
-        await save_film(film_name, age_rating, director, year, country, description, actor, genre, studios, tags, film_file, film_cover)
+        await save_film(film)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                       detail=repr(e))

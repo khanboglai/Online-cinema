@@ -36,8 +36,8 @@ async function handleSubmit(event) {
   formData.append('age_rating', rating);
   formData.append('year', year);
   formData.append('country', country);
-  formData.append('film_file', movieFile);
-  formData.append('film_cover', movieCover);
+  formData.append('file', movieFile);
+  formData.append('cover', movieCover);
   formData.append('director', director);
   formData.append('description', description);
   formData.append('actor', actor);

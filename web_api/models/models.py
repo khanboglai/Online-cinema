@@ -22,7 +22,6 @@ class Profile(Base):
     surname = Column(String)
     birth_date = Column(Date)
     sex = Column(String)
-    ebals = Column(Integer)
     email = Column(String, unique=True)
 
     # Связь 1 к 1 с таблицей Auth
@@ -31,12 +30,14 @@ class Profile(Base):
     # Связь 1 ко многим с таблицей Interaction
     interaction = relationship("Interaction", back_populates="profile")
 
+    # Связь 1 ко многим с таблицей Reply
+    reply = relationship("Reply", back_populates="profile")
+
 class Film(Base):
     __tablename__ = 'film'
     id = Column(Integer, primary_key=True)
     name = Column(String)
     description = Column(String)
-    file_path = Column(String)
     directors = Column(ARRAY(String))
     actors = Column(ARRAY(String))
     genres = Column(ARRAY(String))
@@ -50,6 +51,9 @@ class Film(Base):
     # Связь 1 ко многим с таблицей Interaction
     interaction = relationship("Interaction", back_populates="film")
 
+    # Связь 1 ко многим с таблицей Reply
+    reply = relationship("Reply", back_populates="film")
+
 class Interaction(Base):
     __tablename__ = 'interaction'
     id = Column(Integer, primary_key=True)
@@ -62,3 +66,15 @@ class Interaction(Base):
     profile = relationship("Profile", back_populates="interaction")
 
     film = relationship("Film", back_populates="interaction")
+
+class Reply(Base):
+    __tablename__ = 'reply'
+    id = Column(Integer, primary_key=True)
+    profile_id = Column(Integer, ForeignKey('profile.id'))
+    film_id = Column(Integer, ForeignKey('film.id'))
+    rating = Column(Float)
+    text = Column(String)
+
+    profile = relationship("Profile", back_populates="reply")
+
+    film = relationship("Film", back_populates="reply")
