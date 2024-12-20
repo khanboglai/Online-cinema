@@ -31,7 +31,7 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
         await add_interaction(user.id, film_id)
         film = await get_film_by_id(film_id)
 
-        cover_key = f"{film.id}/{film.name}.png"  # Замените на правильный путь к обложке
+        cover_key = f"{film.id}/image.png"  # Замените на правильный путь к обложке
         try:
             cover_url = s3_client.generate_presigned_url(
                 'get_object',
@@ -58,13 +58,13 @@ async def get_video(request: Request, film_id: int):
     film = await get_film_by_id(film_id)
 
     # Получаем метаданные о видеофайле
-    head_response = s3_client.head_object(Bucket=BUCKET_NAME, Key=f"{film_id}/{film.name}.mp4")
+    head_response = s3_client.head_object(Bucket=BUCKET_NAME, Key=f"{film_id}/video.mp4")
     file_size = head_response['ContentLength']
     range_header = request.headers.get('Range', None)
 
     if range_header is None:
         # Если диапазон не указан, отправляем весь файл
-        response = s3_client.get_object(Bucket=BUCKET_NAME, Key=f"{film_id}/{film.name}.mp4")
+        response = s3_client.get_object(Bucket=BUCKET_NAME, Key=f"{film_id}/video.mp4")
         video_path = response["Body"]
         return StreamingResponse(video_path, media_type="video/mp4")
 
@@ -90,7 +90,7 @@ async def get_video(request: Request, film_id: int):
 
     # Запрашиваем диапазон данных из S3
     range_header = f"bytes={start}-{end}"
-    response = s3_client.get_object(Bucket=BUCKET_NAME, Key=f"{film_id}/{film.name}.mp4", Range=range_header)
+    response = s3_client.get_object(Bucket=BUCKET_NAME, Key=f"{film_id}/video.mp4", Range=range_header)
     video_stream = response["Body"]
 
     return StreamingResponse(video_stream, headers=headers, media_type="video/mp4", status_code=206)

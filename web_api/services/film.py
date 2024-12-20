@@ -63,7 +63,7 @@ async def save_film(
         file_content = await cover.read()
         s3_client.put_object(
             Bucket=BUCKET_NAME,
-            Key=f"{film.id}/{film.name}.png",
+            Key=f"{film.id}/image.png",
             Body=file_content,
             ContentLength=len(file_content)
         )
@@ -78,7 +78,7 @@ async def save_film(
         file_content = await file.read()
         s3_client.put_object(
             Bucket=BUCKET_NAME,
-            Key=f"{film.id}/{film.name}.mp4",
+            Key=f"{film.id}/video.mp4",
             Body=file_content,
             ContentLength=len(file_content)
         )
