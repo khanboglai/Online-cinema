@@ -4,8 +4,11 @@ import logging
 from boto3.exceptions import Boto3Error
 from config import s3_client, BUCKET_NAME
 from repository.film_dao import FilmDao
+from repository.user_dao import ProfileDao
+from repository.comment_dao import CommentDao
 from services.search import add_document
 from schemas.film import SaveFilmRequest
+from schemas.comment import CommentRequest
 
 
 logging.basicConfig(level=logging.INFO)
@@ -13,6 +16,10 @@ logger = logging.getLogger(__name__)
 
 
 dao = FilmDao()
+
+user_dao = ProfileDao()
+comment_dao = CommentDao()
+
 
 async def save_film(film_request: SaveFilmRequest):
     '''
@@ -81,3 +88,27 @@ async def get_film_by_id(film_id: int):
     film = await dao.find_by_id(film_id)
     # Пока что не может быть, чтобы не было такого фильма, так как он берется из хранилки эластика
     return film
+
+async def add_comment_to_db(comment: CommentRequest):
+    profile = await user_dao.find_by_auth_id(comment.user_id)
+
+    await comment_dao.add(
+        profile_id=profile.id,
+        film_id=comment.film_id,
+        rating=comment.rating,
+        text=comment.text
+    )
+
+    new_rate = await comment_dao.get_new_rate(comment.film_id)
+
+    film = await dao.find_by_id(comment.film_id)
+
+    film.rating_kp = new_rate
+    
+    await dao.udate_film_rate(film)
+
+    logger.info("Comment was added successfully!")
+
+async def get_all_comments(film_id: int):
+    comments = await comment_dao.get_all_comments(film_id)
+    return comments

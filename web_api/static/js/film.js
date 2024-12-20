@@ -163,3 +163,55 @@ document.addEventListener('click', (event) => {
     }
 });
 
+const commentForm = document.getElementById('commentForm');
+const commentsList = document.getElementById('commentsList');
+
+commentForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+
+    const rating = document.getElementById('rating').value;
+    const commentText = document.getElementById('commentText').value;
+
+    const comment = {
+        rating: rating,
+        text: commentText
+    };
+
+    // Отправка комментария на сервер
+    await fetch(`/films/${filmId}/comments`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(comment),
+        credentials: 'include'
+    });
+
+    // Очистка формы
+    commentForm.reset();
+
+    // Обновление списка комментариев
+    loadComments();
+});
+
+// Функция для загрузки комментариев
+async function loadComments() {
+    const response = await fetch(`/films/${filmId}/comments`);
+    const comments = await response.json();
+
+    commentsList.innerHTML = ''; // Очистка списка комментариев
+
+    comments.forEach(comment => {
+        const commentDiv = document.createElement('div');
+        commentDiv.classList.add('comment');
+        commentDiv.innerHTML = `
+            <div class="username">${comment.name} ${comment.surname}</div>
+            <div class="rating">Оценка: ${comment.rating}/10</div>
+            <div class="text">${comment.text}</div>
+        `;
+        commentsList.appendChild(commentDiv);
+    });
+}
+
+// Загрузка комментариев при загрузке страницы
+loadComments();

@@ -270,3 +270,63 @@ nav {
     object-fit: cover;
     z-index: 0;
 }
+
+.comments-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Центрируем содержимое по горизонтали */
+}
+
+.comments-section h2 {
+    margin-bottom: 10px;
+    color: #000;
+}
+
+#commentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%; /* Занимает всю ширину родителя */
+    max-width: 1200px; /* Устанавливаем максимальную ширину формы */
+}
+
+#commentForm input, #commentForm textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%; /* Занимает всю ширину формы */
+}
+
+#commentForm button {
+    background-color: var(--primary-red);
+    color: var(--white-bg);
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#commentForm button:hover {
+    background-color: var(--light-red);
+}
+
+.comment {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    width: 1200px; /* Устанавливаем максимальную ширину комментария */
+}
+
+
+.comment .username {
+    font-weight: bold;
+}
+
+.comment .rating {
+    color: var(--primary-red);
+}

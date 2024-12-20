@@ -8,8 +8,9 @@ from boto3.exceptions import Boto3Error
 
 from config import s3_client, BUCKET_NAME
 from services.user import UserDependency
-from services.film import get_film_by_id
+from services.film import get_film_by_id, add_comment_to_db, get_all_comments
 from services.interaction import add_interaction, add_time_into_interaction
+from schemas.comment import Comment, CommentRequest
 
 
 router = APIRouter(
@@ -107,4 +108,16 @@ async def get_video(request: Request, film_id: int):
 async def record_watchtime(user: UserDependency, film_id: int, time_watched: dict):
     time = time_watched.get("timeWatched")
     await add_time_into_interaction(user.id, film_id, time)
+
+@router.post('/{film_id}/comments')
+async def add_comment(user: UserDependency, film_id: int, request: Request):
+    data = await request.json()
+    comment = Comment(**data)
+    comment_to_db = CommentRequest(user_id=user.id, rating=comment.rating, text=comment.text, film_id=film_id)
+    await add_comment_to_db(comment_to_db)
+
+@router.get('/{film_id}/comments')
+async def get_comments(request: Request, film_id: int):
+    comments = await get_all_comments(film_id)
+    return [{"name": comment.name, "surname": comment.surname, "rating": comment.rating, "text": comment.text} for comment in comments]
     
