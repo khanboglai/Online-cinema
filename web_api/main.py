@@ -1,5 +1,6 @@
 """App"""
 import logging
+import asyncio
 from fastapi import FastAPI, status
 from fastapi.responses import RedirectResponse
 from starlette.staticfiles import StaticFiles
