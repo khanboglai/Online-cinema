@@ -10,8 +10,11 @@ from config import templates
 from services.film import save_film
 from services.user import UserDependency
 from schemas.film import SaveFilmRequest, UploadFilmForm
+from logs import logger
+
 
 router = APIRouter(prefix="/upload")
+
 
 @router.get("/")
 async def upload_film_html(request: Request, user: UserDependency):
@@ -23,6 +26,7 @@ async def upload_film_html(request: Request, user: UserDependency):
     if user is None:
         return RedirectResponse(url="/login")
     return templates.TemplateResponse("upload_film.html", {"request": request})
+
 
 @router.post("/")
 async def upload_film(
@@ -50,7 +54,9 @@ async def upload_film(
 
     try:
         await save_film(film_request)
+        logger.info("Film saved success")
     except Exception as e:
+        logger.exception(e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                       detail=repr(e))
 

@@ -1,6 +1,6 @@
 import os
 import re
-import logging
+
 from fastapi import APIRouter, Request, Response, HTTPException
 from fastapi.responses import RedirectResponse, StreamingResponse
 from starlette.templating import Jinja2Templates
@@ -11,17 +11,11 @@ from services.user import UserDependency
 from services.film import get_film_by_id, add_comment_to_db, get_all_comments
 from services.interaction import add_interaction, add_time_into_interaction
 from schemas.comment import Comment, CommentRequest
+from logs import logger
 
-
-router = APIRouter(
-    prefix='/films',
-    tags=['Filmpage']
-)
+router = APIRouter(prefix='/films', tags=['Filmpage'])
 
 templates = Jinja2Templates(directory="templates")
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
     
 @router.get("/{film_id}")
@@ -40,12 +34,15 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
                 ExpiresIn=3600  # Время жизни URL в секундах
             )
             cover_url = cover_url.replace("storage", "localhost", 1)
+            logger.info("Film request successed")
         except Boto3Error as e:
+            logger.error(e)
             cover_url = "/static/image.png" 
         
         if film.rating_kp is not None:
             film.rating_kp = round(film.rating_kp, 1)   
         
+        logger.info(f"Film response successed for {user.login}")
 
         return templates.TemplateResponse("film.html",
                                           {"request": request,
@@ -69,11 +66,13 @@ async def get_video(request: Request, film_id: int):
         # Если диапазон не указан, отправляем весь файл
         response = s3_client.get_object(Bucket=BUCKET_NAME, Key=f"{film_id}/video.mp4")
         video_path = response["Body"]
+        logger.warning("Range header undefined")
         return StreamingResponse(video_path, media_type="video/mp4")
 
     # Обработка диапазона
     range_match = re.match(r'bytes=(\d+)-(\d*)', range_header)
     if not range_match:
+        logger.error("Undefined range")
         raise HTTPException(status_code=416)
 
     start, end = range_match.groups()
@@ -81,6 +80,7 @@ async def get_video(request: Request, film_id: int):
     end = int(end) if end else file_size - 1
 
     if start > end or start < 0 or end >= file_size:
+        logger.error("Range error definition")
         raise HTTPException(status_code=416)
 
     length = end - start + 1
@@ -96,6 +96,7 @@ async def get_video(request: Request, film_id: int):
     response = s3_client.get_object(Bucket=BUCKET_NAME, Key=f"{film_id}/video.mp4", Range=range_header)
     video_stream = response["Body"]
 
+    logger.info("Video stream response completed")
     return StreamingResponse(video_stream, headers=headers, media_type="video/mp4", status_code=206)
 
     # def video_stream():
@@ -111,12 +112,14 @@ async def record_watchtime(user: UserDependency, film_id: int, time_watched: dic
     time = time_watched.get("timeWatched")
     await add_time_into_interaction(user.id, film_id, time)
 
+
 @router.post('/{film_id}/comments')
 async def add_comment(user: UserDependency, film_id: int, request: Request):
     data = await request.json()
     comment = Comment(**data)
     comment_to_db = CommentRequest(user_id=user.id, rating=comment.rating, text=comment.text, film_id=film_id)
     await add_comment_to_db(comment_to_db)
+
 
 @router.get('/{film_id}/comments')
 async def get_comments(request: Request, film_id: int):
