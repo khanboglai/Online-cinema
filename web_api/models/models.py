@@ -27,6 +27,9 @@ class Profile(Base):
     # Связь 1 к 1 с таблицей Auth
     auth = relationship("Auth", back_populates="profile")
 
+    # Связь 1 к 1 с таблицей Recommend
+    recommend = relationship("Recommend", back_populates="profile")
+
     # Связь 1 ко многим с таблицей Interaction
     interaction = relationship("Interaction", back_populates="profile")
 
@@ -78,3 +81,11 @@ class Reply(Base):
     profile = relationship("Profile", back_populates="reply")
 
     film = relationship("Film", back_populates="reply")
+
+class Recommend(Base):
+    __tablename__ = 'recommend'
+    id = Column(Integer, primary_key=True)
+    profile_id = Column(Integer, ForeignKey('profile.id'))
+    film_ids = Column(ARRAY(Integer))
+
+    profile = relationship("Profile", back_populates="recommend", uselist=False)
