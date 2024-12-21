@@ -1,40 +1,49 @@
-import time
+import os
+import logging
+from multiprocessing import Process
+
 import uvicorn
-
-from pydantic import BaseModel
-from typing import List
-
 from fastapi import FastAPI
+
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from recommender import Recommender
-from data_collector import DataCollector
+from routers import router
+from pipeline.pipeline import *
+from pipeline.stages.datacollector import DataCollector
+from pipeline.stages.datapreparer import DataPreparer
+from pipeline.stages.recsys_inference import RecSysInference
+from pipeline.stages.recs_writer import RecsWriter
 
-class RecSysResponse(BaseModel):
-    user_id: int
-    status: int
-    recommendations: List[int]
+DB_CONFIG = {
+    ...
+}
 
+logger = logging.getLogger(__name__)
 app = FastAPI()
-model = Recommender()
-data_collector = DataCollector()
 scheduler = BackgroundScheduler()
+pipeline = Pipeline([
+    DataCollector(DB_CONFIG),
+    DataPreparer(),
+    RecSysInference(),
+    RecsWriter(DB_CONFIG)
+], logger=logger)
 
-def update_model_task():
-    print("Start model update...")
-    time.sleep(30)
-    print("End model update!")
+def background_task() -> None:
+    def run_pipeline(pipeline: Pipeline) -> Tuple[bool, int]:
+        r, i = pipeline.run_all()
+        if r:
+            logger.info("Background task finished successfully.")
+        else:
+            logger.error("Background task failed.")
+        return (r, i)
 
-@app.get("/recommend/{user_id}", response_model=RecSysResponse)
-async def send_recommendations(user_id: int):
-    item_ids = await model.recommend(user_id=user_id)
-    return RecSysResponse(
-        user_id=user_id,
-        status=200,
-        recommendations=item_ids
-    )
+    logger.info("Starting background process...")
+    p = Process(target=run_pipeline, args=(pipeline))
+    p.start()
+    p.join()
+    logger.info("Background process joined.")
 
 if __name__ == "__main__":
-    scheduler.add_job(update_model_task, "interval", minutes=5)
+    scheduler.add_job(background_task, "interval", hours=3, id="recsys_offline_pipeline")
     scheduler.start()
     uvicorn.run(app=app, host="0.0.0.0", port=8080)
