@@ -16,3 +16,17 @@ class SaveFilmRequest(BaseModel):
     tags: str
     file: UploadFile
     cover: UploadFile
+
+class UploadFilmForm(BaseModel):
+    film_name: str
+    age_rating: int
+    director: str
+    year: int
+    country: str
+    description: str
+    actor: str
+    genre: str
+    studios: str
+    tags: str
+    file: UploadFile = File(...)
+    cover: UploadFile = File(...)

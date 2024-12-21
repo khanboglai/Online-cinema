@@ -34,16 +34,16 @@ async function handleSubmit(event) {
   const formData = new FormData();
   formData.append('film_name', movieName);
   formData.append('age_rating', rating);
+  formData.append('director', director);
   formData.append('year', year);
   formData.append('country', country);
-  formData.append('file', movieFile);
-  formData.append('cover', movieCover);
-  formData.append('director', director);
   formData.append('description', description);
   formData.append('actor', actor);
   formData.append('genre', genre);
   formData.append('studios', studios);
   formData.append('tags', tags);
+  formData.append('file', movieFile);
+  formData.append('cover', movieCover);
 
   try {
       const response = await fetch('http://localhost:8000/upload', {

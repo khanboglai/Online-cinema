@@ -9,7 +9,7 @@ from starlette.responses import Response, RedirectResponse
 from config import templates
 from services.film import save_film
 from services.user import UserDependency
-from schemas.film import SaveFilmRequest
+from schemas.film import SaveFilmRequest, UploadFilmForm
 
 router = APIRouter(prefix="/upload")
 
@@ -27,18 +27,7 @@ async def upload_film_html(request: Request, user: UserDependency):
 @router.post("/")
 async def upload_film(
         response: Response,
-        film_name: str = Form(...),
-        age_rating: int = Form(...),
-        director: str = Form(...),
-        year: int = Form(...),
-        country: str = Form(...),
-        description: str = Form(...),
-        actor: str = Form(...),
-        genre: str = Form(...),
-        studios: str = Form(...),
-        tags: str = Form(...),
-        file: UploadFile = File(...),
-        cover: UploadFile = File(...)
+        film: UploadFilmForm = Form(...),
 ):
     '''
     POST (/upload) endpoint
@@ -51,16 +40,16 @@ async def upload_film(
     :param response:
     :return:
     '''
-    if file.content_type != 'video/mp4':
+    if film.file.content_type != 'video/mp4':
         raise HTTPException(status_code=400, detail="Файл должен быть в формате MP4")
     
-    if cover.content_type != 'image/png':
+    if film.cover.content_type != 'image/png':
         raise HTTPException(status_code=400, detail="Файл должен быть в формате PNG")
     
-    film = SaveFilmRequest(film_name=film_name, age_rating=age_rating, director=director, year=year, country=country, description=description, actor=actor, genre=genre, studios=studios, tags=tags, file=file, cover=cover)
+    film_request = SaveFilmRequest(film_name=film.film_name, age_rating=film.age_rating, director=film.director, year=film.year, country=film.country, description=film.description, actor=film.actor, genre=film.genre, studios=film.studios, tags=film.tags, file=film.file, cover=film.cover)
 
     try:
-        await save_film(film)
+        await save_film(film_request)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
                       detail=repr(e))
