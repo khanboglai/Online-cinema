@@ -15,18 +15,18 @@ class RecSysInference(StageABC):
     def run(self, input: StageOut | None = None) -> StageOut:
         model = Recommender(
             candidates_selector_cfg={
+                "K": 60,
+                "K1": 0.6,
+                "B": 0.8
+            },
+            reranker_cfg={
                 "n_estimators": 1000,
                 "max_depth": 5,
                 "learning_rate": 0.12,
                 "thread_count": 16,
-            },
-            reranker_cfg={
-                "K": 60,
-                "K1": 0.6,
-                "B": 0.8
             }
             )
         
-        data = input.unpack()
-        model.fit(*data)
+        users, items, interactions = input.unpack()
+        model.fit(items, users, interactions)
         return StageOut(model.recommend_all())

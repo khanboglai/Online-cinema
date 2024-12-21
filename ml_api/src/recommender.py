@@ -13,8 +13,8 @@ class Recommender(RecommenderABC):
     """
 
     def __init__(self, 
-                 n_candidates: int = 200,
-                 n_recs: int = 10,
+                 n_candidates: int = 10,
+                 n_recs: int = 1,
                  candidates_selector_cfg: dict[str, Any] | None = None,
                  reranker_cfg: dict[str, Any] | None = None
                  ):
@@ -66,11 +66,13 @@ class Recommender(RecommenderABC):
             self._candidate_selector = RandomModel()
             self._reranker = None
             self._candidate_selector.fit(self._dataset)
+            self._is_fitted = True
             return
         elif len(interactions_df) < 10000:
             self._candidate_selector = PopularModel(popularity="n_interactions")
             self._reranker = None
             self._candidate_selector.fit(self._dataset)
+            self._is_fitted = True
             return
 
         # split the data on train and test sets
@@ -112,8 +114,8 @@ class Recommender(RecommenderABC):
             negatives[negatives["user_id"].isin(val_users)]
             ]).sample(frac=1).reset_index(drop=True)
         
-        user_cols = ["user_id", "age", "sex", "kids_flg"]
-        item_cols = ["item_id", "for_kids", "content_type", "age_rating", "rating_kp"]
+        user_cols = ["user_id", "age", "sex"]
+        item_cols = ["item_id", "age_rating", "rating_kp"]
 
         gb_train = gb_train.merge(
             users_df[user_cols], on=["user_id"], how="left"
@@ -125,7 +127,7 @@ class Recommender(RecommenderABC):
         
         cols_to_drop = ["item_id", "user_id"]
         target_col = ["target"]
-        cat_cols = ["age", "sex", "content_type"]
+        cat_cols = ["age", "sex"]
 
         X_train, y_train = gb_train.drop(cols_to_drop + target_col, axis=1), gb_train[target_col]
         X_val, y_val = gb_val.drop(cols_to_drop + target_col, axis=1), gb_val[target_col]
@@ -150,10 +152,10 @@ class Recommender(RecommenderABC):
         if self._reranker is None:
             return self._candidate_selector.recommend(
                 k=self._n_recs,
-                users=self._hot_users_id | self._warm_users_id,
+                users=self._users_df["user_id"],
                 dataset=self._dataset,
-                filter_viewed=True
-            )
+                filter_viewed=False
+            ).reset_index(drop=True)
 
         # make candidates for "hot" users
         candidates = self._candidate_selector.recommend(
@@ -163,8 +165,8 @@ class Recommender(RecommenderABC):
             filter_viewed=True
         )
 
-        user_cols = ["user_id", "age", "sex", "kids_flg"]
-        item_cols = ["item_id", "for_kids", "content_type", "age_rating", "rating_kp"]
+        user_cols = ["user_id", "age", "sex"]
+        item_cols = ["item_id", "age_rating", "rating_kp"]
         cols_to_drop = ["item_id", "user_id"]
 
         candidates = candidates.merge(

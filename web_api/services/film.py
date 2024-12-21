@@ -6,6 +6,7 @@ from config import s3_client, BUCKET_NAME
 from repository.film_dao import FilmDao
 from repository.user_dao import ProfileDao
 from repository.comment_dao import CommentDao
+from repository.recommend_dao import RecommendDao
 from services.search import add_document
 from schemas.film import SaveFilmRequest
 from schemas.comment import CommentRequest
@@ -19,6 +20,7 @@ dao = FilmDao()
 
 user_dao = ProfileDao()
 comment_dao = CommentDao()
+recommend_dao = RecommendDao()
 
 
 async def save_film(film_request: SaveFilmRequest):
@@ -92,6 +94,14 @@ async def get_film_by_id(film_id: int):
 async def get_newest_films():
     films = await dao.find_newest_films()
     return films
+
+async def get_recommend_films(user_id: int):
+    profile = await user_dao.find_by_auth_id(user_id)
+
+    recs = await recommend_dao.get_recommend_by_profile_id(profile.id)
+    if recs is None:
+        return recs
+    return recs.film_ids
 
 async def add_comment_to_db(comment: CommentRequest):
     profile = await user_dao.find_by_auth_id(comment.user_id)

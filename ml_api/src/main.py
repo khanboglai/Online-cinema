@@ -15,7 +15,7 @@ from pipeline.stages.recsys_inference import RecSysInference
 from pipeline.stages.recs_writer import RecsWriter
 
 DB_CONFIG = {
-    ...
+    "DATABASE_URL": "postgresql://debug:pswd@db:5432/cinema"
 }
 
 logger = logging.getLogger(__name__)
@@ -34,16 +34,16 @@ def background_task() -> None:
         if r:
             logger.info("Background task finished successfully.")
         else:
-            logger.error("Background task failed.")
+            logger.error(f"Background task failed. {i}")
         return (r, i)
 
     logger.info("Starting background process...")
-    p = Process(target=run_pipeline, args=(pipeline))
+    p = Process(target=run_pipeline, args=(pipeline,))
     p.start()
     p.join()
     logger.info("Background process joined.")
 
 if __name__ == "__main__":
-    scheduler.add_job(background_task, "interval", hours=3, id="recsys_offline_pipeline")
+    scheduler.add_job(background_task, "interval", seconds=20, id="recsys_offline_pipeline")
     scheduler.start()
     uvicorn.run(app=app, host="0.0.0.0", port=8080)

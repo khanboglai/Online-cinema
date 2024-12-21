@@ -6,7 +6,7 @@ from starlette.templating import Jinja2Templates
 from boto3.exceptions import Boto3Error
 
 from services.user import UserDependency
-from services.film import get_newest_films
+from services.film import get_newest_films, get_recommend_films, get_film_by_id
 from config import s3_client, BUCKET_NAME
 
 
@@ -26,6 +26,23 @@ async def get_home_html(user: UserDependency, request: Request):
         return RedirectResponse(url="/login")
     else:
         images_by_tag = defaultdict(list)
+        film_ids = await get_recommend_films(user.id)
+        if film_ids is not None:
+            for film_id in film_ids:
+                film = await get_film_by_id(film_id)
+                cover_key = f"{film.id}/image.png"
+                try:
+                    cover_url = s3_client.generate_presigned_url(
+                        'get_object',
+                        Params={'Bucket': BUCKET_NAME, 'Key': cover_key},
+                        ExpiresIn=3600
+                    )
+                    cover_url = cover_url.replace("storage", "localhost", 1)
+                except Boto3Error:
+                    cover_url = "/static/image.png"
+                images_by_tag["Recommended"].append({"cover": cover_url,
+                                                    "name": film.name,
+                                                    "id": film},)
         # async with httpx.AsyncClient() as client:
         #     response = await client.get(f"http://ml:8080/recommend/{user.id}")  # Обращаемся ко второму API
         # images_by_tag = defaultdict(list)

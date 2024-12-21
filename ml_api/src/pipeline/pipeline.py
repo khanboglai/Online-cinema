@@ -74,4 +74,4 @@ class Pipeline:
             case PipelineMsg.INFO:
                 self._logger.info(f"[{datetime.now()}][INFO]: {msg}")
             case PipelineMsg.ERROR:
-                self._logger.info(f"[{datetime.now()}][ERROR]: {msg}")
+                self._logger.error(f"[{datetime.now()}][ERROR]: {msg}")
