@@ -45,5 +45,8 @@ class InteractionDao(BaseDao):
             )
 
             result = (await session.execute(query)).scalar_one()
-            result.watchtime = interaction.watchtime
+            if result.watchtime is not None and result.watchtime < interaction.watchtime:
+                result.watchtime = interaction.watchtime
+            if result.watchtime is None:
+                result.watchtime = interaction.watchtime
             await session.commit()

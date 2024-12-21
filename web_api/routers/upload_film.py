@@ -8,17 +8,20 @@ from starlette.responses import Response, RedirectResponse
 
 from config import templates
 from services.film import save_film
+from services.user import UserDependency
+from schemas.film import SaveFilmRequest
 
 router = APIRouter(prefix="/upload")
 
 @router.get("/")
-async def upload_film_html(request: Request):
+async def upload_film_html(request: Request, user: UserDependency):
     '''
     GET (/upload) endpoint
     :param request:
     :return:
     '''
-
+    if user is None:
+        return RedirectResponse(url="/login")
     return templates.TemplateResponse("upload_film.html", {"request": request})
 
 @router.post("/")
@@ -26,10 +29,16 @@ async def upload_film(
         response: Response,
         film_name: str = Form(...),
         age_rating: int = Form(...),
-        # director: str = Form(...),
+        director: str = Form(...),
         year: int = Form(...),
         country: str = Form(...),
-        film_file: UploadFile = File(...)
+        description: str = Form(...),
+        actor: str = Form(...),
+        genre: str = Form(...),
+        studios: str = Form(...),
+        tags: str = Form(...),
+        file: UploadFile = File(...),
+        cover: UploadFile = File(...)
 ):
     '''
     POST (/upload) endpoint
@@ -42,12 +51,18 @@ async def upload_film(
     :param response:
     :return:
     '''
-    # await save_film(film_name, age_rating, director, year, country, film_file)
-    await save_film(film_name, age_rating, year, country, film_file)
-    # try:
-    #     await save_film(film_name, age_rating, year, country, film_file)
-    # except Exception as e:
-    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-    #                   detail=repr(e))
+    if file.content_type != 'video/mp4':
+        raise HTTPException(status_code=400, detail="Файл должен быть в формате MP4")
+    
+    if cover.content_type != 'image/png':
+        raise HTTPException(status_code=400, detail="Файл должен быть в формате PNG")
+    
+    film = SaveFilmRequest(film_name=film_name, age_rating=age_rating, director=director, year=year, country=country, description=description, actor=actor, genre=genre, studios=studios, tags=tags, file=file, cover=cover)
+
+    try:
+        await save_film(film)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                      detail=repr(e))
 
     return Response(status_code=status.HTTP_200_OK)
