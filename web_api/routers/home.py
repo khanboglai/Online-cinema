@@ -42,7 +42,7 @@ async def get_home_html(user: UserDependency, request: Request):
                     cover_url = "/static/image.png"
                 images_by_tag["Recommended"].append({"cover": cover_url,
                                                     "name": film.name,
-                                                    "id": film},)
+                                                    "id": film.id},)
         # async with httpx.AsyncClient() as client:
         #     response = await client.get(f"http://ml:8080/recommend/{user.id}")  # Обращаемся ко второму API
         # images_by_tag = defaultdict(list)
@@ -55,7 +55,6 @@ async def get_home_html(user: UserDependency, request: Request):
         # Выдача новинок
         films = await get_newest_films()
         for film in films:
-            print(film)
             cover_key = f"{film.id}/image.png"
             try:
                 cover_url = s3_client.generate_presigned_url(
