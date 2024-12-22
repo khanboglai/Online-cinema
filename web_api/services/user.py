@@ -124,31 +124,31 @@ async def get_profile_by_user_id(id: int):
     # Получаем весь Profile в таблице profile
     return await profile_dao.find_by_auth_id(id)
 
-# async def check_username_available(username: str) -> bool:
-#     '''
-#     Check if the username is available.
-#     :param username:
-#     :return:
-#     '''
-#     user = await dao.find_by_username(username)
-#     if user is None:
-#         return True
-#     return False
+async def check_username_available(username: str) -> bool:
+    '''
+    Check if the username is available.
+    :param username:
+    :return:
+    '''
+    user = await dao.find_by_username(username)
+    if user is None:
+        return True
+    return False
 
-async def edit_user(user: UserDependency, form: EditUserRequest) -> Profile:
+async def edit_user(user: UserDependency, form: EditUserRequest) -> Auth:
     '''
     Edit user info
     :param user:
     :param form:
     :return:
     '''
-    # if form.username != user.username and await check_username_available(form.username):
-    #     user.username = form.username
-    # if form.new_password:
-    #     user.hashed_password = bcrypt_context.hash(form.new_password)
 
-    # Находим данные юзера в таблице profile
+    # Изменяем данные пользователя в таблице profile и auth
     profile = await profile_dao.find_by_auth_id(user.id)
+    if form.login and await check_username_available(form.login):
+        user.login = form.login
+    if form.new_password:
+        user.hashed_password = bcrypt_context.hash(form.new_password)
     if form.name:
         profile.name = form.name
     if form.surname:
@@ -161,5 +161,6 @@ async def edit_user(user: UserDependency, form: EditUserRequest) -> Profile:
         profile.email = form.email
 
     await profile_dao.update(profile)
+    await dao.update(user)
 
     return user
