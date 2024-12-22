@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy.future import select
 
 from datetime import datetime
@@ -16,6 +18,13 @@ class InteractionDao(BaseDao):
             query = select(cls.model).filter_by(profile_id=user_id, film_id=film_id)
             result = await session.execute(query)
             return result.scalar_one_or_none()
+
+    @classmethod
+    async def get_all_interactions_by_user(cls, user_id) -> List[Interaction]:
+        async with async_session_maker() as session:
+            query = select(cls.model).filter_by(profile_id=user_id)
+            result = await session.execute(query)
+            return result.scalars().all()
         
     @classmethod
     async def update(cls, interaction: Interaction):

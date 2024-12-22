@@ -7,6 +7,7 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 from config import settings
 from exceptions.exceptions import UserIsExistError
+from repository.interaction_dao import InteractionDao
 from repository.user_dao import ProfileDao, AuthDao
 from schemas.user import CreateUserRequest, EditUserRequest
 from models.models import Auth, Profile
@@ -20,6 +21,7 @@ bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 dao = AuthDao()
 profile_dao = ProfileDao()
+interaction_dao = InteractionDao()
 
 async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
     """Foo for creating new user"""
@@ -123,6 +125,17 @@ async def get_email_by_user_id(user: UserDependency):
 async def get_profile_by_user_id(id: int):
     # Получаем весь Profile в таблице profile
     return await profile_dao.find_by_auth_id(id)
+
+async def get_general_watchtime_by_user_id(id: int) -> int:
+    # Получаем общее количество просмотренных часов
+    interactions = await interaction_dao.get_all_interactions_by_user(id)
+
+    watchtime = 0
+    for interaction in interactions:
+        watchtime += interaction.watchtime
+
+    return watchtime
+
 
 async def check_username_available(username: str) -> bool:
     '''

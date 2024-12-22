@@ -45,8 +45,11 @@
         </div>
         <div class="stat-card">
           <h3>Watch Time</h3>
-          <p class="amount">126 hours</p>
-          <small>This month</small>
+          {% if watchtime == 1 %}
+            <p class="amount">{{ watchtime }} hour</p>
+          {% else %}
+            <p class="amount">{{ watchtime }} hours</p>
+          {% endif %}
         </div>
         <div class="stat-card">
           <h3>Watchlist Progress</h3>

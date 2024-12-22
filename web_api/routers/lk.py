@@ -9,7 +9,8 @@ from starlette.responses import Response, RedirectResponse
 from config import templates
 from schemas.user import EditUserRequest
 from services.user import UserDependency, edit_user, create_access_token, get_birth_date_by_user_id, \
-    get_name_by_user_id, get_surname_by_user_id, get_email_by_user_id, get_profile_by_user_id, get_age
+    get_name_by_user_id, get_surname_by_user_id, get_email_by_user_id, get_profile_by_user_id, get_age, \
+    get_general_watchtime_by_user_id
 
 router = APIRouter(prefix="/lk", tags=["Personal Account"])
 
@@ -24,6 +25,7 @@ async def get_lk_html(user: UserDependency,
         {
             "profile": profile,
             "age": get_age(profile.birth_date),
+            "watchtime": await get_general_watchtime_by_user_id(user.id),
             "request": request
         }
     )
