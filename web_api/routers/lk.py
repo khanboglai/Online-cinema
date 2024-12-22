@@ -17,6 +17,8 @@ router = APIRouter(prefix="/lk", tags=["Personal Account"])
 @router.get("/")
 async def get_lk_html(user: UserDependency,
                       request: Request):
+    if user is None:
+        return RedirectResponse(url="/login")
     """Personal account page"""
     profile = await get_profile_by_user_id(user.id)
 
@@ -33,6 +35,8 @@ async def get_lk_html(user: UserDependency,
 @router.get("/edit")
 async def get_edit_html(user: UserDependency,
                         request: Request):
+    if user is None:
+        return RedirectResponse(url="/login")
     """Personal account edit page"""
     profile = await get_profile_by_user_id(user.id)
     # name: str | None = await get_name_by_user_id(user)
