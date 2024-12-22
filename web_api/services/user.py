@@ -74,12 +74,15 @@ async def get_current_user(request: Request) -> Auth | None:
 
 UserDependency = Annotated[Auth, Depends(get_current_user)]
 
-def get_age(birth_date: datetime) -> int:
+def get_age(birth_date: datetime | None) -> int | None:
     '''
     Get user age
     :param birth_date:
     :return:
     '''
+    if birth_date is None:
+        return None
+
     return (
             datetime.now().year
             - birth_date.year
@@ -116,6 +119,10 @@ async def get_email_by_user_id(user: UserDependency):
     if profile.email:
         return profile.email
     return None
+
+async def get_profile_by_user_id(id: int):
+    # Получаем весь Profile в таблице profile
+    return await profile_dao.find_by_auth_id(id)
 
 # async def check_username_available(username: str) -> bool:
 #     '''

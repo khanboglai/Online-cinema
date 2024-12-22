@@ -8,7 +8,8 @@ from starlette.responses import Response, RedirectResponse
 
 from config import templates
 from schemas.user import EditUserRequest
-from services.user import get_age, UserDependency, edit_user, create_access_token, get_birth_date_by_user_id, get_name_by_user_id, get_surname_by_user_id, get_email_by_user_id
+from services.user import UserDependency, edit_user, create_access_token, get_birth_date_by_user_id, \
+    get_name_by_user_id, get_surname_by_user_id, get_email_by_user_id, get_profile_by_user_id, get_age
 
 router = APIRouter(prefix="/lk", tags=["Personal Account"])
 
@@ -16,19 +17,14 @@ router = APIRouter(prefix="/lk", tags=["Personal Account"])
 async def get_lk_html(user: UserDependency,
                       request: Request):
     """Personal account page"""
-    birth_date: datetime | None = await get_birth_date_by_user_id(user)
-    age: int | None = None
-    if birth_date:
-        age = get_age(birth_date)
-    name: str | None = await get_name_by_user_id(user)
-    surname: str | None = await get_surname_by_user_id(user)
+    profile = await get_profile_by_user_id(user.id)
+
     return templates.TemplateResponse(
         "lk.html",
         {
-            "name": name,
-            "surname": surname,
-            "request": request,
-            "age": age
+            "profile": profile,
+            "age": get_age(profile.birth_date),
+            "request": request
         }
     )
 
