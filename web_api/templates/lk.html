@@ -74,10 +74,12 @@
       {% endif %}
       {% for film in recently_watched %}
       <div class="activity-item">
-        <svg class="activity-icon" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" fill="#e50914"/>
-          <path d="M9 8l8 4l-8 4V8z" fill="white"/>
-        </svg>
+        <a href="/films/{{ film[1].id }}">
+          <svg class="activity-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" fill="#e50914"/>
+            <path d="M9 8l8 4l-8 4V8z" fill="white"/>
+          </svg>
+        </a>
         <div>
           <h3>{{ film[1].name }}</h3>
           <p>{{ film[0].last_interaction }}</p>
