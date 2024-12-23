@@ -1,5 +1,6 @@
 """Services with login, register and authentification"""
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
+from math import floor
 from typing import Annotated
 
 from fastapi import Form, Request, Depends
@@ -10,8 +11,7 @@ from exceptions.exceptions import UserIsExistError
 from repository.interaction_dao import InteractionDao
 from repository.user_dao import ProfileDao, AuthDao
 from schemas.user import CreateUserRequest, EditUserRequest
-from models.models import Auth, Profile
-
+from models.models import Auth, Profile, Interaction, Film
 
 # !!! SECRET !!!
 SECRET_KEY = settings.SECRET_KEY
@@ -135,6 +135,30 @@ async def get_general_watchtime_by_user_id(id: int) -> int:
         watchtime += interaction.watchtime
 
     return watchtime
+
+async def get_recently_watched(id: int, n: int) -> list[(Interaction, Film)]:
+    recently_watched = await profile_dao.get_recently_watched(id, n)
+
+    for (interaction, film) in recently_watched:
+        last_interaction = interaction.last_interaction.replace(tzinfo=timezone.utc)
+        delta = (datetime.now(timezone.utc) - last_interaction).total_seconds()
+
+        if delta / 3600 >= 1:
+            delta_str = str(floor(delta / 3600)) + ' hour'
+            if delta_str != '1 hour':
+                delta_str += 's'
+        elif delta / 60 >= 1:
+            delta_str = str(floor(delta / 60)) + ' minute'
+            if delta_str != '1 minute':
+                delta_str += 's'
+        else:
+            delta_str = str(floor(delta)) + ' second'
+            if delta_str != '1 second':
+                delta_str += 's'
+
+        interaction.last_interaction = delta_str
+
+    return recently_watched
 
 
 async def check_username_available(username: str) -> bool:

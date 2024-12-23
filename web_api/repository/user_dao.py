@@ -7,7 +7,7 @@ from sqlalchemy.future import select
 
 from repository.base_dao import BaseDao
 
-from models.models import Auth, Profile
+from models.models import Auth, Profile, Interaction, Film
 from repository.database import async_session_maker
 
 class ProfileDao(BaseDao):
@@ -47,6 +47,25 @@ class ProfileDao(BaseDao):
             result.sex = user.sex
             result.email = user.email
             await session.commit()
+
+    @classmethod
+    async def get_recently_watched(cls, id: int, n: int) -> list[(Interaction, Film)]:
+        """
+        Get recently watched films by user with id.
+        :param id: user id
+        :param n: number of films to return
+        :return:
+        """
+        async with async_session_maker() as session:
+            query = select(Interaction, Film) \
+                .select_from(Profile) \
+                .join(Interaction) \
+                .join(Film) \
+                .where(Interaction.profile_id == id) \
+                .order_by(Interaction.last_interaction.desc()) \
+                .limit(n)
+            result = await session.execute(query)
+            return result.all()
 
 
 class AuthDao(BaseDao):

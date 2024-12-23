@@ -10,24 +10,29 @@ from config import templates
 from schemas.user import EditUserRequest
 from services.user import UserDependency, edit_user, create_access_token, get_birth_date_by_user_id, \
     get_name_by_user_id, get_surname_by_user_id, get_email_by_user_id, get_profile_by_user_id, get_age, \
-    get_general_watchtime_by_user_id
+    get_general_watchtime_by_user_id, get_recently_watched
 
 router = APIRouter(prefix="/lk", tags=["Personal Account"])
 
 @router.get("/")
 async def get_lk_html(user: UserDependency,
                       request: Request):
+    """Personal account page"""
     if user is None:
         return RedirectResponse(url="/login")
-    """Personal account page"""
     profile = await get_profile_by_user_id(user.id)
+    watchtime = await get_general_watchtime_by_user_id(user.id)
+    number_of_recently_watched = 5
+    recently_watched = await get_recently_watched(user.id, number_of_recently_watched)
 
+    # TODO: recently watched
     return templates.TemplateResponse(
         "lk.html",
         {
             "profile": profile,
             "age": get_age(profile.birth_date),
-            "watchtime": await get_general_watchtime_by_user_id(user.id),
+            "watchtime": watchtime,
+            "recently_watched": recently_watched,
             "request": request
         }
     )
