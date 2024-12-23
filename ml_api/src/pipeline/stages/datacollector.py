@@ -24,7 +24,7 @@ class DataCollector(StageABC):
                 sex
             FROM profile
             """
-            users = await conn.fetch()
+            users = await conn.fetch(query)
 
             query = """
             SELECT profile_id AS user_id,
@@ -33,7 +33,7 @@ class DataCollector(StageABC):
                 watchtime AS total_dur
             FROM interaction
             """
-            interactions = await conn.fetch()
+            interactions = await conn.fetch(query)
 
             print("Interact")
 
@@ -46,7 +46,7 @@ class DataCollector(StageABC):
                 rating_kp, 
                 age_rating
             FROM film"""
-            films = await conn.fetch()
+            films = await conn.fetch(query)
 
             await conn.close()
         except asyncpg.PostgresError as e:
