@@ -12,8 +12,7 @@
       <main class="main-content">
           <div class="login-container">
               <div class="logo">Register</div>
-              <div class="error-message" id="errorMessage">Invalid username or password</div>
-              <form class="login-form" action="/register" method="POST" id="loginForm">
+              <form class="login-form" id="loginForm" onsubmit="handleLogin(event)">
                   <div class="form-group">
                       <label for="username">Username</label>
                       <input type="text" id="username" name="username" required>
@@ -24,10 +23,12 @@
                   </div>
                   <button type="submit" class="login-btn">Create account</button>
               </form>
+              <div class="error-message" id="errorMessage" style="display: none; color: red;"></div>
               <div class="signup-link">
                   Already have an account? <a href="/login">Sign in</a>
               </div>
           </div>
       </main>
+      <script src="/static/js/register.js"></script>
   </body>
   </html>
