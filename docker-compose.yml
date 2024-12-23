@@ -81,7 +81,7 @@ services:
       - rabbitmq
     restart: always
     ports:
-      - "8080:8000"
+      - "8080:8080"
 
   # elasticsearch:
   #   image: elasticsearch:7.17.26
@@ -116,6 +116,18 @@ services:
     command: server /data --console-address ":9001"
     volumes:
       - minio_data:/data  # Хранение данных MinIO
+
+  scheduler:
+    build:
+      context: ./scheduler
+      dockerfile: Dockerfile_scheduler
+    container_name: scheduler
+    depends_on:
+      - rabbitmq
+    restart: always
+    ports:
+      - "8085:8085"
+
 
 volumes:
   pgdata:

@@ -1,26 +1,28 @@
 import os
 import logging
-from multiprocessing import Process
 
 import aio_pika
 import uvicorn
 from fastapi import FastAPI
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from aio_pika import connect, Message, ExchangeType
+from aio_pika import Message
 from routers import router
 from pipeline.pipeline import *
 from pipeline.stages.datacollector import DataCollector
 from pipeline.stages.datapreparer import DataPreparer
 from pipeline.stages.recsys_inference import RecSysInference
 from pipeline.stages.recs_writer import RecsWriter
+from contextlib import asynccontextmanager
+
 
 DB_CONFIG = {
     "DATABASE_URL": "postgresql://debug:pswd@db:5432/cinema"
 }
 
 logger = logging.getLogger(__name__)
-app = FastAPI()
+
+
 scheduler = BackgroundScheduler()
 pipeline = Pipeline([
     DataCollector(DB_CONFIG),
@@ -59,30 +61,37 @@ async def on_message(message: Message):
 
 
 async def start_rabbitmq_listener():
-    connection = await aio_pika.connect_robust("amqp://guest:guest@rabbitmq/")
-    channel = await connection.channel()  # Создаем канал
+    try:
+        connection = await aio_pika.connect_robust("amqp://guest:guest@rabbitmq/")
+        channel = await connection.channel()  # Создаем канал
 
-    await channel.set_qos(prefetch_count=1)  # Устанавливаем QoS
+        await channel.set_qos(prefetch_count=1)  # Устанавливаем QoS
 
-    queue = await channel.declare_queue("ml_queue", durable=True)  # Объявляем очередь
+        queue = await channel.declare_queue("ml_queue", durable=True)  # Объявляем очередь
 
-    await queue.consume(on_message)  # Подписываемся на очередь
+        await queue.consume(on_message)  # Подписываемся на очередь
 
-    logger.info("Waiting for messages. To exit press CTRL+C")
-    return connection  # Возвращаем соединение для дальнейшего использования
+        logger.info("Waiting for messages. To exit press CTRL+C")
+        return connection  # Возвращаем соединение для дальнейшего использования
+    except Exception as e:
+        logger.error(f"Failed to connect to RabbitMQ: {e}")
+        raise
 
 
-@app.on_event("startup")
-async def startup_event():
+@asynccontextmanager
+async def lifespan(_: FastAPI):
     app.state.rabbit_connection = await start_rabbitmq_listener()
+    logger.info("Successfully connected to rabbitmq")
 
+    yield
 
-@app.on_event("shutdown")
-async def shutdown_event():
     await app.state.rabbit_connection.close()
+    logger.info("Closed connection with rabbitmq")
+
+
+app = FastAPI()
+app.include_router(router)
 
 
 if __name__ == "__main__":
-    # scheduler.add_job(background_task, "interval", seconds=20, id="recsys_offline_pipeline")
-    # scheduler.start()
     uvicorn.run(app=app, host="0.0.0.0", port=8080)
