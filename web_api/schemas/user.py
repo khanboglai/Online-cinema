@@ -15,6 +15,8 @@ class CreateUserRequest(BaseModel):
 
 class EditUserRequest(BaseModel):
     """Edit requset validation model"""
+    login: str | None = Field(None, description="Username")
+    new_password: str | None = Field(None, description="Password")
     name: str | None = Field(None, description="Name")
     surname: str | None = Field(None, description="Surname")
     birth_date: date | None = Field(None, description="Birth date")

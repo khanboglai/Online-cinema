@@ -10,7 +10,7 @@
 <body>
   <header class="header">
     <div class="container">
-      <h2>Личный кабинет</h2>
+      <a href="/" class="logo"><h2>ChocoPy</h2></a>
       <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
   </header>
@@ -24,8 +24,8 @@
           <circle cx="50" cy="90" r="35" fill="#e50914"/>
           </svg>
           <div class="profile-info">
-            {% if name is not none and surname is not none %}
-              <h2>{{ name }} {{ surname }}</h2>
+            {% if profile.name is not none and profile.surname is not none %}
+              <h2>{{ profile.name }} {{ profile.surname }}</h2>
             {% endif %}
             <p>
               {% if age is not none %}
@@ -45,69 +45,73 @@
         </div>
         <div class="stat-card">
           <h3>Watch Time</h3>
-          <p class="amount">126 hours</p>
-          <small>This month</small>
+          {% if watchtime == 1 %}
+            <p class="amount">{{ watchtime }} hour</p>
+          {% else %}
+            <p class="amount">{{ watchtime }} hours</p>
+          {% endif %}
         </div>
-        <div class="stat-card">
-          <h3>Watchlist Progress</h3>
-          <div class="progress-bar">
-            <div class="progress"></div>
-          </div>
-          <p>15 of 20 movies watched</p>
-        </div>
+<!--        <div class="stat-card">-->
+<!--          <h3>Watchlist Progress</h3>-->
+<!--          <div class="progress-bar">-->
+<!--            <div class="progress"></div>-->
+<!--          </div>-->
+<!--          <p>15 of 20 movies watched</p>-->
+<!--        </div>-->
       </div>
     </section>
 
     <section class="activity-feed">
       <h2>Recently Watched</h2>
-      <div class="activity-item">
-        <svg class="activity-icon" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" fill="#e50914"/>
-          <path d="M9 8l8 4l-8 4V8z" fill="white"/>
+      {% if not recently_watched %}
+      <div class="empty-state">
+        <svg width="64" height="64" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" fill="#564d4d"></path>
         </svg>
+        <h3>No Watch History Yet</h3>
+        <p>Start watching movies to see your activity here!</p>
+      </div>
+      {% endif %}
+      {% for film in recently_watched %}
+      <div class="activity-item">
+        <a href="/films/{{ film[1].id }}">
+          <svg class="activity-icon" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" fill="#e50914"/>
+            <path d="M9 8l8 4l-8 4V8z" fill="white"/>
+          </svg>
+        </a>
         <div>
-          <h3>Inception</h3>
-          <p>Watched 85% - Continue watching</p>
-          <small>2 hours ago</small>
+          <h3>{{ film[1].name }}</h3>
+          <p>{{ film[0].last_interaction }}</p>
         </div>
       </div>
-      <div class="activity-item">
-        <svg class="activity-icon" viewBox="0 0 24 24">
-          <circle cx="12" cy="12" r="10" fill="#e50914"/>
-          <path d="M9 8l8 4l-8 4V8z" fill="white"/>
-        </svg>
-        <div>
-          <h3>The Dark Knight</h3>
-          <p>Completed</p>
-          <small>Yesterday</small>
-        </div>
-      </div>
+      {% endfor %}
     </section>
 
-    <section class="watchlist">
-      <div class="movie-card">
-        <div class="movie-poster">
-          <svg viewBox="0 0 24 24" width="48" height="48">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="white"/>
-          </svg>
-        </div>
-        <div class="movie-info">
-          <h3>Interstellar</h3>
-          <p>On your watchlist</p>
-        </div>
-      </div>
-      <div class="movie-card">
-        <div class="movie-poster">
-          <svg viewBox="0 0 24 24" width="48" height="48">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="white"/>
-          </svg>
-        </div>
-        <div class="movie-info">
-          <h3>The Matrix</h3>
-          <p>On your watchlist</p>
-        </div>
-      </div>
-    </section>
+<!--    <section class="watchlist">-->
+<!--      <div class="movie-card">-->
+<!--        <div class="movie-poster">-->
+<!--          <svg viewBox="0 0 24 24" width="48" height="48">-->
+<!--            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="white"/>-->
+<!--          </svg>-->
+<!--        </div>-->
+<!--        <div class="movie-info">-->
+<!--          <h3>Interstellar</h3>-->
+<!--          <p>On your watchlist</p>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--      <div class="movie-card">-->
+<!--        <div class="movie-poster">-->
+<!--          <svg viewBox="0 0 24 24" width="48" height="48">-->
+<!--            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="white"/>-->
+<!--          </svg>-->
+<!--        </div>-->
+<!--        <div class="movie-info">-->
+<!--          <h3>The Matrix</h3>-->
+<!--          <p>On your watchlist</p>-->
+<!--        </div>-->
+<!--      </div>-->
+<!--    </section>-->
   </main>
 
 <script src="/static/js/script.js"></script>

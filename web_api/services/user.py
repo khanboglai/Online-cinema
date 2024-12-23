@@ -1,5 +1,6 @@
 """Services with login, register and authentification"""
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, timezone
+from math import floor
 from typing import Annotated
 
 from fastapi import Form, Request, Depends
@@ -7,10 +8,10 @@ from passlib.context import CryptContext
 from jose import jwt, JWTError
 from config import settings
 from exceptions.exceptions import UserIsExistError
+from repository.interaction_dao import InteractionDao
 from repository.user_dao import ProfileDao, AuthDao
 from schemas.user import CreateUserRequest, EditUserRequest
-from models.models import Auth, Profile
-
+from models.models import Auth, Profile, Interaction, Film
 
 # !!! SECRET !!!
 SECRET_KEY = settings.SECRET_KEY
@@ -20,6 +21,7 @@ bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 dao = AuthDao()
 profile_dao = ProfileDao()
+interaction_dao = InteractionDao()
 
 async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
     """Foo for creating new user"""
@@ -74,12 +76,15 @@ async def get_current_user(request: Request) -> Auth | None:
 
 UserDependency = Annotated[Auth, Depends(get_current_user)]
 
-def get_age(birth_date: datetime) -> int:
+def get_age(birth_date: datetime | None) -> int | None:
     '''
     Get user age
     :param birth_date:
     :return:
     '''
+    if birth_date is None:
+        return None
+
     return (
             datetime.now().year
             - birth_date.year
@@ -117,31 +122,70 @@ async def get_email_by_user_id(user: UserDependency):
         return profile.email
     return None
 
-# async def check_username_available(username: str) -> bool:
-#     '''
-#     Check if the username is available.
-#     :param username:
-#     :return:
-#     '''
-#     user = await dao.find_by_username(username)
-#     if user is None:
-#         return True
-#     return False
+async def get_profile_by_user_id(id: int):
+    # Получаем весь Profile в таблице profile
+    return await profile_dao.find_by_auth_id(id)
 
-async def edit_user(user: UserDependency, form: EditUserRequest) -> Profile:
+async def get_general_watchtime_by_user_id(id: int) -> int:
+    # Получаем общее количество просмотренных часов
+    interactions = await interaction_dao.get_all_interactions_by_user(id)
+
+    watchtime = 0
+    for interaction in interactions:
+        watchtime += interaction.watchtime
+
+    return watchtime
+
+async def get_recently_watched(id: int, n: int) -> list[(Interaction, Film)]:
+    recently_watched = await profile_dao.get_recently_watched(id, n)
+
+    for (interaction, film) in recently_watched:
+        last_interaction = interaction.last_interaction.replace(tzinfo=timezone.utc)
+        delta = (datetime.now(timezone.utc) - last_interaction).total_seconds()
+
+        if delta / 3600 >= 1:
+            delta_str = str(floor(delta / 3600)) + ' hour'
+            if delta_str != '1 hour':
+                delta_str += 's'
+        elif delta / 60 >= 1:
+            delta_str = str(floor(delta / 60)) + ' minute'
+            if delta_str != '1 minute':
+                delta_str += 's'
+        else:
+            delta_str = str(floor(delta)) + ' second'
+            if delta_str != '1 second':
+                delta_str += 's'
+
+        interaction.last_interaction = delta_str
+
+    return recently_watched
+
+
+async def check_username_available(username: str) -> bool:
+    '''
+    Check if the username is available.
+    :param username:
+    :return:
+    '''
+    user = await dao.find_by_username(username)
+    if user is None:
+        return True
+    return False
+
+async def edit_user(user: UserDependency, form: EditUserRequest) -> Auth:
     '''
     Edit user info
     :param user:
     :param form:
     :return:
     '''
-    # if form.username != user.username and await check_username_available(form.username):
-    #     user.username = form.username
-    # if form.new_password:
-    #     user.hashed_password = bcrypt_context.hash(form.new_password)
 
-    # Находим данные юзера в таблице profile
+    # Изменяем данные пользователя в таблице profile и auth
     profile = await profile_dao.find_by_auth_id(user.id)
+    if form.login and await check_username_available(form.login):
+        user.login = form.login
+    if form.new_password:
+        user.hashed_password = bcrypt_context.hash(form.new_password)
     if form.name:
         profile.name = form.name
     if form.surname:
@@ -154,5 +198,6 @@ async def edit_user(user: UserDependency, form: EditUserRequest) -> Profile:
         profile.email = form.email
 
     await profile_dao.update(profile)
+    await dao.update(user)
 
     return user
