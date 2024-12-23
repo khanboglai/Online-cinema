@@ -1,14 +1,14 @@
 services:
-  # rabbitmq:
-  #   image: rabbitmq:3-management-alpine
-  #   container_name: rabbitmq
-  #   hostname: rabbitmq
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
-  #   volumes:
-  #     - rabbitmq_data:/var/lib/rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     
   postgres:
     image: postgres:16.4
@@ -58,7 +58,7 @@ services:
     depends_on:
       - postgres
       # - elasticsearch
-      # - rabbitmq
+      - rabbitmq
     environment:
       DB_USER: debug
       DB_PASSWORD: pswd
@@ -77,6 +77,8 @@ services:
       context: ./ml_api
       dockerfile: Dockerfile_ml
     container_name: ml
+    depends_on:
+      - rabbitmq
     restart: always
     ports:
       - "8080:8000"
@@ -121,4 +123,4 @@ volumes:
   esdata:
     driver: local
   minio_data:
-  # rabbitmq_data:
+  rabbitmq_data:
