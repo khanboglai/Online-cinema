@@ -23,7 +23,7 @@ async def upload_film_html(request: Request, user: UserDependency):
     :param request:
     :return:
     '''
-    if user is None:
+    if user is None or user.role != 'ROLE_ADMIN':
         return RedirectResponse(url="/login")
     return templates.TemplateResponse("upload_film.html", {"request": request})
 
