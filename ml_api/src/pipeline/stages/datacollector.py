@@ -1,4 +1,4 @@
-import psycopg2
+import asyncpg
 import logging
 from typing import Dict, Any
 from pipeline.pipeline import *
@@ -13,38 +13,48 @@ class DataCollector(StageABC):
         super().__init__("DataCollector")
         self._db_config = db_config
 
-    def run(self, input: StageOut | None = None) -> StageOut:
-        print("Here")
+    async def run(self, input: StageOut | None = None) -> StageOut:
         try:
-            conn = psycopg2.connect(database="cinema",
-                                    user="debug",
-                                    password="pswd",
-                                    host="postgres",
-                                    port="5432")
+            conn = await asyncpg.connect(**self._db_config)
 
-            cur = conn.cursor()
-            print("Cur")
+            query = """
+            SELECT 
+                id AS user_id,
+                EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) AS age,
+                sex
+            FROM profile
+            """
+            users = await conn.fetch()
 
-            cur.execute("SELECT id AS user_id, name, surname, EXTRACT(YEAR FROM AGE(CURRENT_DATE, birth_date)) AS age, sex, email FROM profile")
-            users_cols = [desc[0] for desc in cur.description]
-            users = cur.fetchall()
-
-            print("Users")
-
-            cur.execute("SELECT profile_id AS user_id, film_id AS item_id, last_interaction AS last_watched_dt, count_interaction, watchtime AS total_dur FROM interaction")
-            inter_cols = [desc[0] for desc in cur.description]
-            interactions = cur.fetchall()
+            query = """
+            SELECT profile_id AS user_id,
+                film_id AS item_id,
+                last_interaction AS last_watched_dt,
+                watchtime AS total_dur
+            FROM interaction
+            """
+            interactions = await conn.fetch()
 
             print("Interact")
 
-            cur.execute("SELECT id AS item_id, name AS title, description, directors, actors, genres, year AS release_year, countries, rating_kp, age_rating FROM film")
-            films_cols = [desc[0] for desc in cur.description]
-            films = cur.fetchall()
+            query = """
+            SELECT 
+                id AS item_id,
+                name AS title,
+                genres,
+                year AS release_year,
+                rating_kp, 
+                age_rating
+            FROM film"""
+            films = await conn.fetch()
 
-            cur.close()
-            conn.close()
-            print("Data selected")
-        except psycopg2.OperationalError as e:
+            await conn.close()
+        except asyncpg.PostgresError as e:
             print(e)
-        # тут подключение к БД и получение данных
-        return StageOut((pd.DataFrame(users, columns=users_cols), pd.DataFrame(films, columns=films_cols), pd.DataFrame(interactions, columns=inter_cols))) # Tuple(raw_users_df, raw_items_df, raw_interactions_df)
+            raise
+
+        return StageOut((
+            pd.DataFrame(users),
+            pd.DataFrame(films),
+            pd.DataFrame(interactions)
+            )) # Tuple(raw_users_df, raw_items_df, raw_interactions_df)
