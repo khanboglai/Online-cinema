@@ -15,7 +15,7 @@ from pipeline.stages.recsys_inference import RecSysInference
 from pipeline.stages.recs_writer import RecsWriter
 from contextlib import asynccontextmanager
 
-
+# TODO: конфиг нужно через .env сюда притянуть
 DB_CONFIG = {
     "database": "cinema",
     "user": "debug",
