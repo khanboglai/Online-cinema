@@ -119,7 +119,7 @@ services:
 
   scheduler:
     build:
-      context: ./scheduler
+      context: ./scheduler_api
       dockerfile: Dockerfile_scheduler
     container_name: scheduler
     depends_on:
