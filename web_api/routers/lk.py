@@ -4,9 +4,11 @@ from typing import Annotated
 from fastapi import APIRouter, Form
 from starlette import status
 from starlette.requests import Request
-from starlette.responses import Response, RedirectResponse
+from starlette.responses import Response, RedirectResponse, JSONResponse
 
 from config import templates
+from logs import logger
+from exceptions.exceptions import UserIsExistError, UserEmailExistError
 from schemas.user import EditUserRequest
 from services.user import UserDependency, edit_user, create_access_token, get_birth_date_by_user_id, \
     get_name_by_user_id, get_surname_by_user_id, get_email_by_user_id, get_profile_by_user_id, get_age, \
@@ -61,7 +63,14 @@ async def get_edit_html(user: UserDependency,
 async def edit(response: Response,
                user: UserDependency,
                form: EditUserRequest = Form()):
-    new_user = await edit_user(user, form)
+    try:
+        new_user = await edit_user(user, form)
+    except UserIsExistError as e:
+        logger.error(e)
+        return JSONResponse(status_code=401, content={"error": "User with the same login already exists!"})
+    except UserEmailExistError as e:
+        logger.error(e)
+        return JSONResponse(status_code=401, content={"error": "User with the same email already exists!"})
     access_token = create_access_token(new_user.login,
                                        new_user.id)
     response = RedirectResponse(url="/lk", status_code=status.HTTP_302_FOUND)

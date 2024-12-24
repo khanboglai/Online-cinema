@@ -12,7 +12,7 @@
   </header>
 
   <main class="container">
-    <form class="edit-form" id="profileForm" action="/lk/edit" method="POST">
+    <form class="edit-form" id="profileForm" onsubmit="handleLogin(event)">
       <div class="form-group">
         <label for="login">Login</label>
         <input type="text" id="login" name="login" value='{{ auth.login }}' required>
@@ -71,7 +71,7 @@
         {% endif %}
       </div>
 
-      
+      <div class="error-message" id="errorMessage" style="display: none; color: red;"></div>
 
       <div class="button-group">
         <button type="submit">Save Changes</button>
