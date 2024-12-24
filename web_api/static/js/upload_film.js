@@ -46,7 +46,7 @@ async function handleSubmit(event) {
   formData.append('cover', movieCover);
 
   try {
-      const response = await fetch('http://localhost:8000/upload', {
+      const response = await fetch('http://localhost:8000/upload/', {
           method: 'POST',
           body: formData,
       });

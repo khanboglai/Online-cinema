@@ -42,3 +42,8 @@ async def user_auth(user: UserDependency):
     if user is None:
         return RedirectResponse(url="/login")
     return RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
+
+# обработчик для несуществующего маршрута
+@app.get("/{full_path:path}")
+async def catch_all(full_path: str):
+    return RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
