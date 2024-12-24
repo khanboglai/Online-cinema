@@ -29,7 +29,7 @@ class Recommender(RecommenderABC):
         self._candidate_selector = ImplicitItemKNNWrapperModel(BM25Recommender(**candidates_selector_cfg))
         # second-stage model
         self._reranker = CatBoostClassifier(**reranker_cfg)
-        # basic popular model
+        # basic model
         self._default_model = PopularModel(popularity="n_interactions")
 
         # dataframes
@@ -63,6 +63,7 @@ class Recommender(RecommenderABC):
         self._hot_users_id = set(self._interactions_df["user_id"].unique().tolist())
         self._warm_users_id = set([u for u in set(self._users_df["user_id"].unique().tolist())\
             if u not in self._hot_users_id])
+        self._warm_users_id.add(0)
 
         if len(interactions_df) < 1000:
             if len(interactions_df) < 100:
