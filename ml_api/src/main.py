@@ -1,5 +1,5 @@
 import os
-import logging
+from logs import logger
 
 import aio_pika
 import uvicorn
@@ -24,8 +24,8 @@ DB_CONFIG = {
     "port": "5432"
 }
 
-logger = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+# logger = logging.getLogger(__name__)
+# logging.basicConfig(level=logging.INFO)
 
 scheduler = BackgroundScheduler()
 pipeline = Pipeline([

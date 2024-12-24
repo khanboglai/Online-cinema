@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from typing import Dict, Any, Tuple
 from pipeline.pipeline import *
+from logs import logger
 
 class RecsWriter(StageABC):
     """
@@ -17,26 +18,26 @@ class RecsWriter(StageABC):
 
         recs = recs[["user_id", "item_id"]]
 
+        logger.info("1/3 - Processing data...")
         df = pd.DataFrame(recs)
-
         recs_grouped = df.groupby("user_id")["item_id"].agg(list).reset_index()
         recs_grouped = [tuple(row) for row in recs_grouped.values]
         
         try:
             conn = await asyncpg.connect(**self._db_config)
 
+            logger.info("2/3 - Deleting old data...")
             await conn.execute("""DELETE FROM recommend""")
 
+            logger.info("3/3 - Inserting new recommendations...")
             query = """
             INSERT INTO recommend (profile_id, film_ids)
             VALUES ($1, $2) 
             RETURNING profile_id
             """
             await conn.executemany(query, recs_grouped)
+
             await conn.close()
-
-            print("Insterted")
-
         except asyncpg.PostgresError as e:
-            print(f"Recs_writer: {e}")
+            print(f"Database error: {e}")
             raise

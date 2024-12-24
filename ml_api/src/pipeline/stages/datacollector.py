@@ -1,5 +1,5 @@
 import asyncpg
-import logging
+from logs import logger
 from typing import Dict, Any
 from pipeline.pipeline import *
 import pandas as pd
@@ -17,6 +17,7 @@ class DataCollector(StageABC):
         try:
             conn = await asyncpg.connect(**self._db_config)
 
+            logger.info("1/3 Get users info...")
             query = """
             SELECT 
                 id AS user_id,
@@ -25,8 +26,8 @@ class DataCollector(StageABC):
             FROM profile
             """
             users = await conn.fetch(query)
-            print("BD users")
-
+            
+            logger.info("2/3 Get interactions info...")
             query = """
             SELECT profile_id AS user_id,
                 film_id AS item_id,
@@ -36,8 +37,7 @@ class DataCollector(StageABC):
             """
             interactions = await conn.fetch(query)
 
-            print("Interact")
-
+            logger.info("3/3 Get items info...")
             query = """
             SELECT 
                 id AS item_id,
@@ -49,11 +49,9 @@ class DataCollector(StageABC):
             FROM film"""
             films = await conn.fetch(query)
 
-            print(films)
-
             await conn.close()
         except asyncpg.PostgresError as e:
-            print(e)
+            logger.error(f"Database error: {e}")
             raise
 
         return StageOut((
