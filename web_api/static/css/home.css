@@ -16,6 +16,14 @@
 .search-container {
     position: relative;
     width: 300px;
+    flex-grow: 1;
+        display: flex;
+        justify-content: center;
+}
+
+.button-container {
+    display: flex;
+    gap: 10px;
 }
 
 .search-suggestions {

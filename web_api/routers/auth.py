@@ -1,7 +1,7 @@
 """Routers with login, register and authentification"""
 from datetime import timedelta, datetime
 from fastapi import APIRouter, HTTPException, Form, Response, Request
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from starlette import status
 
 from config import templates
@@ -38,8 +38,7 @@ async def create_user(response: Response,
         access_token = await register_user(create_user_request)
     except UserIsExistError as e:
         logger.error(e)
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-                            detail='User with the same login already exists')
+        return JSONResponse(status_code=401, content={"error": "User with the same login already exists!"})
 
     response = RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
@@ -54,9 +53,8 @@ async def login(response: Response,
         create_user_request.username,
         create_user_request.password
     )
-    if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail='Could not validate user.') # Update in nearest future
+    if user is None:
+        return JSONResponse(status_code=401, content={"error": "Invalid username or password!"})
     access_token = create_access_token(user.login,
                                        user.id)
     response = RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)

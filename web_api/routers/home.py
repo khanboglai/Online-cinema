@@ -69,6 +69,10 @@ async def get_home_html(user: UserDependency, request: Request):
                                          "name": film.name,
                                          "id": film.id})
         # images_by_tag = None
-        return templates.TemplateResponse("home.html", {"request": request,
+        if user.role == 'ROLE_ADMIN':
+            return templates.TemplateResponse("home_admin.html", {"request": request,
+                                                        "films": images_by_tag})
+        else:
+            return templates.TemplateResponse("home.html", {"request": request,
                                                         "films": images_by_tag})
 
