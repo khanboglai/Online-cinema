@@ -25,6 +25,7 @@ class DataCollector(StageABC):
             FROM profile
             """
             users = await conn.fetch(query)
+            print("BD users")
 
             query = """
             SELECT profile_id AS user_id,
@@ -48,13 +49,15 @@ class DataCollector(StageABC):
             FROM film"""
             films = await conn.fetch(query)
 
+            print(films)
+
             await conn.close()
         except asyncpg.PostgresError as e:
             print(e)
             raise
 
         return StageOut((
-            pd.DataFrame(users),
-            pd.DataFrame(films),
-            pd.DataFrame(interactions)
+            pd.DataFrame.from_records(users, columns=users[0].keys()),
+            pd.DataFrame.from_records(films, columns=films[0].keys()),
+            pd.DataFrame.from_records(interactions, columns=interactions[0].keys())
             )) # Tuple(raw_users_df, raw_items_df, raw_interactions_df)

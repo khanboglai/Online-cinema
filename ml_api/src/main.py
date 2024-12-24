@@ -25,7 +25,7 @@ DB_CONFIG = {
 }
 
 logger = logging.getLogger(__name__)
-
+logging.basicConfig(level=logging.INFO)
 
 scheduler = BackgroundScheduler()
 pipeline = Pipeline([
@@ -93,7 +93,7 @@ async def lifespan(_: FastAPI):
     logger.info("Closed connection with rabbitmq")
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.include_router(router)
 
 

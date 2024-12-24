@@ -35,6 +35,8 @@ class RecsWriter(StageABC):
             await conn.executemany(query, recs_grouped)
             await conn.close()
 
+            print("Insterted")
+
         except asyncpg.PostgresError as e:
             print(f"Recs_writer: {e}")
             raise

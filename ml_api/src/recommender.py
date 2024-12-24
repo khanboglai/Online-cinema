@@ -14,7 +14,7 @@ class Recommender(RecommenderABC):
 
     def __init__(self, 
                  n_candidates: int = 10,
-                 n_recs: int = 1,
+                 n_recs: int = 2,
                  candidates_selector_cfg: dict[str, Any] | None = None,
                  reranker_cfg: dict[str, Any] | None = None
                  ):

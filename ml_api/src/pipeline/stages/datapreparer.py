@@ -13,6 +13,10 @@ class DataPreparer(StageABC):
 
     async def run(self, input: StageOut | None = None) -> StageOut:
         raw_users_df, raw_items_df, raw_interactions_df = input.unpack()
+
+        print(raw_users_df)
+        print(raw_items_df)
+        print(raw_interactions_df)
         
         print("users")
         prepared_users = self._prepare_users(raw_users_df)
@@ -51,7 +55,7 @@ class DataPreparer(StageABC):
         prepared_interactions["datetime"] = pd.to_datetime(prepared_interactions["last_watched_dt"])
 
         #prepared_interactions = prepared_interactions[prepared_interactions["total_dur"] > 100].reset_index(drop = True)
-        #prepared_interactions["weight"] = np.where(prepared_interactions['total_dur'] > 10, np.int8(3), np.int8(1))
+        prepared_interactions["weight"] = np.where(prepared_interactions['total_dur'] > 10, np.int8(3), np.int8(1))
 
         return prepared_interactions
 
