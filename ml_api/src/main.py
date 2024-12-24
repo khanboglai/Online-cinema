@@ -15,13 +15,17 @@ from pipeline.stages.recsys_inference import RecSysInference
 from pipeline.stages.recs_writer import RecsWriter
 from contextlib import asynccontextmanager
 
-
+# TODO: конфиг нужно через .env сюда притянуть
 DB_CONFIG = {
-    "DATABASE_URL": "postgresql://debug:pswd@db:5432/cinema"
+    "database": "cinema",
+    "user": "debug",
+    "password": "pswd",
+    "host": "postgres",
+    "port": "5432"
 }
 
 logger = logging.getLogger(__name__)
-
+logging.basicConfig(level=logging.INFO)
 
 scheduler = BackgroundScheduler()
 pipeline = Pipeline([
@@ -42,7 +46,7 @@ pipeline = Pipeline([
 #     logger.info("Background process joined.")
 
 async def run_pipeline(pipeline: Pipeline) -> Tuple[bool, int]:
-    r, i = pipeline.run_all()
+    r, i = await pipeline.run_all()
     if r:
         logger.info("Background task finished successfully.")
     else:
@@ -89,7 +93,7 @@ async def lifespan(_: FastAPI):
     logger.info("Closed connection with rabbitmq")
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
 app.include_router(router)
 
 

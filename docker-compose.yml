@@ -1,14 +1,14 @@
 services:
-  # rabbitmq:
-  #   image: rabbitmq:3-management-alpine
-  #   container_name: rabbitmq
-  #   hostname: rabbitmq
-  #   ports:
-  #     - "5672:5672"
-  #     - "15672:15672"
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
 
-  #   volumes:
-  #     - rabbitmq_data:/var/lib/rabbitmq
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
     
   postgres:
     image: postgres:16.4
@@ -58,7 +58,7 @@ services:
     depends_on:
       - postgres
       # - elasticsearch
-      # - rabbitmq
+      - rabbitmq
     environment:
       DB_USER: debug
       DB_PASSWORD: pswd
@@ -72,16 +72,16 @@ services:
     volumes:
       - ./web_api:/app
 
-  # ml:
-  #   build: 
-  #     context: ./ml_api
-  #     dockerfile: Dockerfile_ml
-  #   container_name: ml
-  #   depends_on:
-  #     - rabbitmq
-  #   restart: always
-  #   ports:
-  #     - "8080:8080"
+  ml:
+    build: 
+      context: ./ml_api
+      dockerfile: Dockerfile_ml
+    container_name: ml
+    depends_on:
+      - rabbitmq
+    restart: always
+    ports:
+      - "8080:8080"
 
   # elasticsearch:
   #   image: elasticsearch:7.17.26
@@ -117,16 +117,16 @@ services:
     volumes:
       - minio_data:/data  # Хранение данных MinIO
 
-  # scheduler:
-  #   build:
-  #     context: ./scheduler
-  #     dockerfile: Dockerfile_scheduler
-  #   container_name: scheduler
-  #   depends_on:
-  #     - rabbitmq
-  #   restart: always
-  #   ports:
-  #     - "8085:8085"
+  scheduler:
+    build:
+      context: ./scheduler_api
+      dockerfile: Dockerfile_scheduler
+    container_name: scheduler
+    depends_on:
+      - rabbitmq
+    restart: always
+    ports:
+      - "8085:8085"
 
 
 volumes:

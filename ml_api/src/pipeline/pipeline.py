@@ -26,7 +26,7 @@ class StageABC(ABC):
         self._name = name
 
     @abstractmethod
-    def run(self, input: StageOut | None = None) -> StageOut:
+    async def run(self, input: StageOut | None = None) -> StageOut:
         """Run pipeline stage"""
         ...
 
@@ -46,14 +46,14 @@ class Pipeline:
         self._stages = stages
         self._logger = logger
 
-    def run_all(self) -> Tuple[bool, int]:
+    async def run_all(self) -> Tuple[bool, int]:
         """Runs all pipeline stages"""
 
         out = None
         for n, stage in enumerate(self._stages, 1):
             try:
                 self._log(f"Starting stage <{stage._name}> #{n}...")
-                out = stage.run(out)
+                out = await stage.run(out)
                 self._log(f"Stage <{stage._name}> #{n} finished successfully")
             except Exception as e:
                 if self._logger is not None:
