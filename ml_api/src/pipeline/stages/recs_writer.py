@@ -9,6 +9,7 @@ class RecsWriter(StageABC):
     """
     Writes recommendations to the database
     """
+
     def __init__(self, db_config: Dict[str, Any]):
         super().__init__("RecsWriter")
         self._db_config = db_config
