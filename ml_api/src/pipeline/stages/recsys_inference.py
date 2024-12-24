@@ -3,6 +3,7 @@ import numpy as np
 from typing import Dict, Any, Tuple
 from pipeline.pipeline import *
 from recommender import Recommender
+from logs import logger
 
 class RecSysInference(StageABC):
     """
@@ -13,6 +14,7 @@ class RecSysInference(StageABC):
         super().__init__("RecSysInference")
 
     async def run(self, input: StageOut | None = None) -> StageOut:
+        logger.info("1/3 - Initializing recommender...")
         model = Recommender(
                 candidates_selector_cfg={
                     "K": 60,
@@ -28,5 +30,8 @@ class RecSysInference(StageABC):
             )
         
         users, items, interactions = input.unpack()
+
+        logger.info("2/3 - Fitting...")
         model.fit(items, users, interactions)
+        logger.info("3/3 - Generating recommendations...")
         return StageOut(model.recommend_all())
