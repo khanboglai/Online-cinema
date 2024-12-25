@@ -3,7 +3,7 @@ function editProfile() {
 }
 
 function goLK() {
-  window.location.replace('/lk');
+  window.location.replace('/lk/');
 }
 
 function logout() {
@@ -23,7 +23,8 @@ async function handleLogin(event) {
       document.getElementById('errorMessage').textContent = result.error;
       document.getElementById('errorMessage').style.display = 'block';
   } else {
-      window.location.reload();
+      console.log("here");
+      window.location.replace("/lk/");
   }
 }
 
