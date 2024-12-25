@@ -136,8 +136,10 @@ async def get_general_watchtime_by_user_id(id: int) -> int:
     interactions = await interaction_dao.get_all_interactions_by_user(id)
 
     watchtime = 0
+
     for interaction in interactions:
-        watchtime += interaction.watchtime
+        if interaction is not None:
+            watchtime += interaction.watchtime
 
     return watchtime
 

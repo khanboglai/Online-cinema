@@ -46,7 +46,7 @@ async function handleSubmit(event) {
   formData.append('cover', movieCover);
 
   try {
-      const response = await fetch('http://localhost:8000/upload/', {
+      const response = await fetch('/upload/', {
           method: 'POST',
           body: formData,
       });
@@ -60,7 +60,7 @@ async function handleSubmit(event) {
 
       const result = response.ok;
       console.log('Upload successful:', result);
-      window.location.href = "http://localhost:8000/home";
+      window.location.href = "/home";
   } catch (error) {
       console.error('Network Error:', error);
       alert('An error occurred. Please check your internet connection and try again.');

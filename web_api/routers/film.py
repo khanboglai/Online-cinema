@@ -26,18 +26,18 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
         await add_interaction(user.id, film_id)
         film = await get_film_by_id(film_id)
 
-        cover_key = f"{film.id}/image.png"
-        try:
-            cover_url = s3_client.generate_presigned_url(
-                'get_object',
-                Params={'Bucket': BUCKET_NAME, 'Key': cover_key},
-                ExpiresIn=3600  # Время жизни URL в секундах
-            )
-            cover_url = cover_url.replace("storage", "localhost", 1)
-            logger.info("Film request successed")
-        except Boto3Error as e:
-            logger.error(e)
-            cover_url = "/static/image.png" 
+        # cover_key = f"{film.id}/image.png"
+        # try:
+        #     cover_url = s3_client.generate_presigned_url(
+        #         'get_object',
+        #         Params={'Bucket': BUCKET_NAME, 'Key': cover_key},
+        #         ExpiresIn=3600  # Время жизни URL в секундах
+        #     )
+        #     cover_url = cover_url.replace("storage", "0.0.0.0", 1)
+        #     logger.info("Film request successed")
+        # except Boto3Error as e:
+        #     logger.error(e)
+        #     cover_url = "/static/image.png" 
         
         if film.rating_kp is not None:
             film.rating_kp = round(film.rating_kp, 1)   
@@ -47,7 +47,8 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
         return templates.TemplateResponse("film.html",
                                           {"request": request,
                                            "film": film,
-                                           "cover": cover_url})
+                                        #    "cover": cover_url,
+                                           })
 
     
 @router.get("/video/{film_id}")

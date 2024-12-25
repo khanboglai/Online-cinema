@@ -31,12 +31,12 @@
                     </svg>
                 </div>
             </div>
-            <img src="{{ cover }}" 
+            <img src="/image/{{ film.id }}" 
                  alt="{{ film.name }}" 
                  class="film-cover" 
                  id="filmCover">
             <video class="video-player" id="videoPlayer">
-                <source src="http://localhost:8000/films/video/{{ film.id }}" type="video/mp4">
+                <source src="/films/video/{{ film.id }}" type="video/mp4">
             </video>
             <div class="video-controls">
                 <button class="control-btn" id="playPauseBtn">
