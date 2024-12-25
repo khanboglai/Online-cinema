@@ -128,7 +128,10 @@ async def get_comments(request: Request, film_id: int):
     return [{"name": comment.name, "surname": comment.surname, "rating": comment.rating, "text": comment.text} for comment in comments]
 
 @router.get('/edit/{film_id}')
-async def get_edit_film(request: Request, film_id: int):
+async def get_edit_film(request: Request, film_id: int, user: UserDependency):
+    if user is None or user.role != 'ROLE_ADMIN':
+        return RedirectResponse(url="/login")
+
     film = await get_film_by_id(film_id)
     directors = ", ".join(film.directors)
     actors = ", ".join(film.actors)
