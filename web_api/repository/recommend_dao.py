@@ -15,5 +15,6 @@ class RecommendDao(BaseDao):
                 .filter_by(profile_id = profile_id)
             )
 
-            result = (await session.execute(query)).scalar_one_or_none()
+            result = (await session.execute(query)).scalars().all()
             return result
+        

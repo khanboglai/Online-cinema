@@ -23,7 +23,6 @@ async function handleLogin(event) {
       document.getElementById('errorMessage').textContent = result.error;
       document.getElementById('errorMessage').style.display = 'block';
   } else {
-      console.log("here");
       window.location.replace("/lk/");
   }
 }

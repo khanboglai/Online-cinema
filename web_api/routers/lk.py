@@ -67,10 +67,10 @@ async def edit(response: Response,
         new_user = await edit_user(user, form)
     except UserIsExistError as e:
         logger.error(e)
-        return JSONResponse(status_code=401, content={"error": "User with the same login already exists!"})
+        return JSONResponse(status_code=401, content={"error": e.message})
     except UserEmailExistError as e:
         logger.error(e)
-        return JSONResponse(status_code=401, content={"error": "User with the same email already exists!"})
+        return JSONResponse(status_code=401, content={"error": e.message})
     access_token = create_access_token(new_user.login,
                                        new_user.id)
     response = RedirectResponse(url="/lk", status_code=status.HTTP_302_FOUND)

@@ -54,10 +54,13 @@ class Film(Base):
     age_rating = Column(Integer)
 
     # Связь 1 ко многим с таблицей Interaction
-    interaction = relationship("Interaction", back_populates="film")
+    interaction = relationship("Interaction", back_populates="film", cascade="all, delete-orphan")
 
     # Связь 1 ко многим с таблицей Reply
-    reply = relationship("Reply", back_populates="film")
+    reply = relationship("Reply", back_populates="film", cascade="all, delete-orphan")
+
+    # Связь 1 ко многим с таблицей Recommend
+    recommend = relationship("Recommend", back_populates="film", cascade="all, delete-orphan")
 
 class Interaction(Base):
     __tablename__ = 'interaction'
@@ -88,6 +91,9 @@ class Recommend(Base):
     __tablename__ = 'recommend'
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profile.id'))
-    film_ids = Column(ARRAY(Integer))
+    film_id = Column(Integer, ForeignKey('film.id'))
+    rank = Column(Integer)
 
-    profile = relationship("Profile", back_populates="recommend", uselist=False)
+    film = relationship("Film", back_populates="recommend")
+
+    profile = relationship("Profile", back_populates="recommend")

@@ -25,20 +25,6 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
     else:
         await add_interaction(user.id, film_id)
         film = await get_film_by_id(film_id)
-
-        # cover_key = f"{film.id}/image.png"
-        # try:
-        #     cover_url = s3_client.generate_presigned_url(
-        #         'get_object',
-        #         Params={'Bucket': BUCKET_NAME, 'Key': cover_key},
-        #         ExpiresIn=3600  # Время жизни URL в секундах
-        #     )
-        #     cover_url = cover_url.replace("storage", "0.0.0.0", 1)
-        #     logger.info("Film request successed")
-        # except Boto3Error as e:
-        #     logger.error(e)
-        #     cover_url = "/static/image.png" 
-        
         if film.rating_kp is not None:
             film.rating_kp = round(film.rating_kp, 1)   
         
@@ -99,13 +85,6 @@ async def get_video(request: Request, film_id: int):
 
     logger.info("Video stream response completed")
     return StreamingResponse(video_stream, headers=headers, media_type="video/mp4", status_code=206)
-
-    # def video_stream():
-    #     with open(video_path, "rb") as video_file:
-    #         while chunk := video_file.read(1024 * 1024):  # Читаем по 1 МБ за раз
-    #             yield chunk
-
-    # return StreamingResponse(video_stream(), media_type="video/mp4")
 
 
 @router.post('/watchtime/{film_id}')

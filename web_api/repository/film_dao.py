@@ -5,7 +5,7 @@ FilmDao. Dao for Film.
 from models.models import Film
 from repository.base_dao import BaseDao
 from repository.database import async_session_maker
-from sqlalchemy import select
+from sqlalchemy import select, delete
 
 
 class FilmDao(BaseDao):
@@ -49,5 +49,13 @@ class FilmDao(BaseDao):
 
             result = (await session.execute(query)).scalars().all()
             return result
-
-
+    
+    @classmethod
+    async def delete_film_by_id(cls, film_id: int):
+        async with async_session_maker() as session:
+            query = (
+                delete(cls.model)
+                .filter_by(id = film_id)
+            )
+            await session.execute(query)
+            await session.commit()

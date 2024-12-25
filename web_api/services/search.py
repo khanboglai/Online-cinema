@@ -28,4 +28,6 @@ async def get_search_results(search_query: str, page: int):
 async def add_document(title: str, id: int):
     document = {'title': title}
     response = es.index(index='films', id=id, document=document)
-    logger.info(f"film {title} added to elastic with id {id}")
+
+async def delete_document(id: int):
+    response = es.delete(index='films', id=id)
