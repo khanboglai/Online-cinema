@@ -27,17 +27,17 @@ class RecsWriter(StageABC):
         try:
             conn = await asyncpg.connect(**self._db_config)
 
-            logger.info("2/3 - Deleting old data...")
-            await conn.execute("""DELETE FROM recommend""")
+            async with conn.transaction():
+                logger.info("2/3 - Deleting old data...")
+                await conn.execute("""DELETE FROM recommend""")
 
-            logger.info("3/3 - Inserting new recommendations...")
-            query = """
-            INSERT INTO recommend (profile_id, film_ids)
-            VALUES ($1, $2) 
-            RETURNING profile_id
-            """
-            await conn.executemany(query, recs_grouped)
-
+                logger.info("3/3 - Inserting new recommendations...")
+                query = """
+                INSERT INTO recommend (profile_id, film_ids)
+                VALUES ($1, $2) 
+                RETURNING profile_id
+                """
+                await conn.executemany(query, recs_grouped)
             await conn.close()
         except asyncpg.PostgresError as e:
             print(f"Database error: {e}")
