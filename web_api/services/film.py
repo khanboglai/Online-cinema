@@ -7,8 +7,8 @@ from repository.film_dao import FilmDao
 from repository.user_dao import ProfileDao
 from repository.comment_dao import CommentDao
 from repository.recommend_dao import RecommendDao
-from services.search import add_document
-from schemas.film import SaveFilmRequest
+from services.search import add_document, update_document
+from schemas.film import SaveFilmRequest, EditFilmForm
 from schemas.comment import CommentRequest
 
 
@@ -126,3 +126,7 @@ async def add_comment_to_db(comment: CommentRequest):
 async def get_all_comments(film_id: int):
     comments = await comment_dao.get_all_comments(film_id)
     return comments
+
+async def edit_film(film: EditFilmForm) -> None:
+    await dao.update_film(film)
+    await update_document(film.film_name, film.id)

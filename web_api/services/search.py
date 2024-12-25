@@ -29,3 +29,12 @@ async def add_document(title: str, id: int):
     document = {'title': title}
     response = es.index(index='films', id=id, document=document)
     logger.info(f"film {title} added to elastic with id {id}")
+
+async def update_document(title: str, id: int):
+    document = {
+        "doc": {
+            "title": title
+        }
+    }
+    response = es.update(index='films', id=id, body=document)
+    logger.info(f"film {title} updated to elastic with id {id}")
