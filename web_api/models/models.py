@@ -66,7 +66,7 @@ class Interaction(Base):
     __tablename__ = 'interaction'
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profile.id'))
-    film_id = Column(Integer, ForeignKey('film.id'))
+    film_id = Column(Integer, ForeignKey('film.id', ondelete='CASCADE'))
     last_interaction = Column(DateTime)
     count_interaction = Column(Integer)
     watchtime = Column(Integer)
@@ -79,7 +79,7 @@ class Reply(Base):
     __tablename__ = 'reply'
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profile.id'))
-    film_id = Column(Integer, ForeignKey('film.id'))
+    film_id = Column(Integer, ForeignKey('film.id', ondelete='CASCADE'))
     rating = Column(Float)
     text = Column(String)
 
@@ -91,7 +91,7 @@ class Recommend(Base):
     __tablename__ = 'recommend'
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profile.id'))
-    film_id = Column(Integer, ForeignKey('film.id'))
+    film_id = Column(Integer, ForeignKey('film.id', ondelete='CASCADE'))
     rank = Column(Integer)
 
     film = relationship("Film", back_populates="recommend")

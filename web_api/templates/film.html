@@ -73,6 +73,13 @@
             <p class="movie-description">
                 {{ film.description }}
             </p>
+            {% if admin %}
+            <form class="delete-form" id="deleteForm" onsubmit="handleDelete(event)">
+                <input type="hidden" name="film_id" id="film_id" value="{{ film.id }}">
+                <button type="submit">Удалить фильм</button>
+            </form>
+            <div class="error-message" id="errorMessage" style="display: none; color: red;"></div>
+            {% endif %}
         </div>
         <div class="comments-section">
             <h2 class="section-title">Оставить комментарий</h2>

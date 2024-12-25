@@ -286,6 +286,10 @@ nav {
     color: #000;
 }
 
+#deleteForm {
+    margin-top: 10px;
+}
+
 #commentForm {
     display: flex;
     flex-direction: column;
@@ -310,7 +314,20 @@ nav {
     cursor: pointer;
 }
 
+#deleteForm button {
+    background-color: var(--primary-red);
+    color: var(--white-bg);
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
 #commentForm button:hover {
+    background-color: var(--light-red);
+}
+
+#deleteForm button:hover {
     background-color: var(--light-red);
 }
 

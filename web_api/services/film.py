@@ -7,7 +7,7 @@ from repository.film_dao import FilmDao
 from repository.user_dao import ProfileDao
 from repository.comment_dao import CommentDao
 from repository.recommend_dao import RecommendDao
-from services.search import add_document
+from services.search import add_document, delete_document
 from schemas.film import SaveFilmRequest
 from schemas.comment import CommentRequest
 from elasticsearch import ConnectionError
@@ -142,4 +142,5 @@ async def get_all_comments(film_id: int):
 
 async def delete_film(film_id: int):
     await dao.delete_film_by_id(film_id)
+    await delete_document(film_id)
     logger.info(f"Deleted film with id: {film_id}")

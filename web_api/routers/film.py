@@ -2,13 +2,13 @@ import os
 import re
 
 from fastapi import APIRouter, Request, Response, HTTPException
-from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi.responses import RedirectResponse, StreamingResponse, JSONResponse
 from starlette.templating import Jinja2Templates
-from boto3.exceptions import Boto3Error
+from sqlalchemy.exc import SQLAlchemyError
 
 from config import s3_client, BUCKET_NAME
 from services.user import UserDependency
-from services.film import get_film_by_id, add_comment_to_db, get_all_comments
+from services.film import get_film_by_id, add_comment_to_db, get_all_comments, delete_film
 from services.interaction import add_interaction, add_time_into_interaction
 from schemas.comment import Comment, CommentRequest
 from logs import logger
@@ -29,10 +29,13 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
             film.rating_kp = round(film.rating_kp, 1)   
         
         logger.info(f"Film response successed for {user.login}")
-
+        admin = False
+        if user.role == 'ROLE_ADMIN':
+            admin = True
         return templates.TemplateResponse("film.html",
                                           {"request": request,
                                            "film": film,
+                                           "admin": admin,
                                         #    "cover": cover_url,
                                            })
 
@@ -105,4 +108,12 @@ async def add_comment(user: UserDependency, film_id: int, request: Request):
 async def get_comments(request: Request, film_id: int):
     comments = await get_all_comments(film_id)
     return [{"name": comment.name, "surname": comment.surname, "rating": comment.rating, "text": comment.text} for comment in comments]
+
+@router.post('/delete/{film_id}')
+async def delete_film_request(request: Request, film_id: int):
+    try:
+        await delete_film(film_id)
+    except SQLAlchemyError as e:
+        logger.error(f"Delete from pg error: {e}")
+        return JSONResponse(status_code=500, content={"error": "Something occured with db, try again!"})
     
