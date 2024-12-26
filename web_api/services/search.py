@@ -43,13 +43,26 @@ async def get_user_search_results(search_query: str, page: int):
 async def add_document(title: str, id: int):
     document = {'title': title}
     response = es.index(index='films', id=id, document=document)
+    logger.info(f"film {title} added to elastic with id {id}")
 
 async def add_user_to_es(user_id: int, login: str):
     document = {'login': login}
     response = es.index(index='users', id=user_id, document=document)
+    logger.info(f"user {login} added to elastic with id {user_id}")
 
 async def delete_document(id: int):
     response = es.delete(index='films', id=id)
+    logger.info(f"film with id {id} deleted from elastic")
 
 async def delete_user_from_es(user_id: int):
     response = es.delete(index='users', id=user_id)
+    logger.info(f"user with id {id} deleted from elastic")
+
+async def update_user_in_es(login: str, user_id: int):
+    document = {
+        "doc": {
+            "login": login
+        }
+    }
+    response = es.update(index='users', id=user_id, body=document)
+    logger.info(f"user {login} updated in elastic")

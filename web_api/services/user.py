@@ -13,7 +13,7 @@ from repository.interaction_dao import InteractionDao
 from repository.user_dao import ProfileDao, AuthDao
 from schemas.user import CreateUserRequest, EditUserRequest
 from models.models import Auth, Profile, Interaction, Film
-from services.search import delete_user_from_es, add_user_to_es
+from services.search import delete_user_from_es, add_user_to_es, update_user_in_es
 
 # !!! SECRET !!!
 SECRET_KEY = settings.SECRET_KEY
@@ -183,6 +183,7 @@ async def edit_user(user: UserDependency, form: EditUserRequest) -> Auth:
     profile = await profile_dao.find_by_auth_id(user.id)
     if form.login:
         user.login = form.login
+        await update_user_in_es(form.login, user.id)
     if form.new_password:
         user.hashed_password = bcrypt_context.hash(form.new_password)
     if form.name:
