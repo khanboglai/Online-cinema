@@ -1,15 +1,16 @@
 import os
 import re
 
-from fastapi import APIRouter, Request, Response, HTTPException
+from fastapi import APIRouter, Request, Response, HTTPException, Form
 from fastapi.responses import RedirectResponse, StreamingResponse, JSONResponse
 from starlette.templating import Jinja2Templates
 from sqlalchemy.exc import SQLAlchemyError
 
 from config import s3_client, BUCKET_NAME
 from config import templates
+from schemas.film import EditFilmForm
 from services.user import UserDependency
-from services.film import get_film_by_id, add_comment_to_db, get_all_comments, delete_film
+from services.film import get_film_by_id, add_comment_to_db, get_all_comments, edit_film as edit_film_service, delete_film
 from services.interaction import add_interaction, add_time_into_interaction
 from schemas.comment import Comment, CommentRequest
 from logs import logger
@@ -108,6 +109,36 @@ async def add_comment(user: UserDependency, film_id: int, request: Request):
 async def get_comments(request: Request, film_id: int):
     comments = await get_all_comments(film_id)
     return [{"name": comment.name, "surname": comment.surname, "rating": comment.rating, "text": comment.text} for comment in comments]
+    
+@router.get('/edit/{film_id}')
+async def get_edit_film(request: Request, film_id: int, user: UserDependency):
+    if user is None or user.role != 'ROLE_ADMIN':
+        return RedirectResponse(url="/login")
+
+    film = await get_film_by_id(film_id)
+    directors = ", ".join(film.directors)
+    actors = ", ".join(film.actors)
+    genres = ", ".join(film.genres)
+    countries = ", ".join(film.countries)
+    tags = ", ".join(film.tags)
+
+    return templates.TemplateResponse(
+        "edit_film.html", {
+            "request": request,
+            "film": film,
+            "directors": directors,
+            "actors": actors,
+            "genres": genres,
+            "countries": countries,
+            "tags": tags,
+            "id": film.id
+        }
+    )
+
+@router.post('/edit')
+async def edit_film(response: Response, film: EditFilmForm = Form(...)):
+    print("film age_rating: " + str(film.age_rating))
+    await edit_film_service(film)
 
 @router.post('/delete/{film_id}')
 async def delete_film_request(request: Request, film_id: int):
@@ -116,4 +147,3 @@ async def delete_film_request(request: Request, film_id: int):
     except SQLAlchemyError as e:
         logger.error(f"Delete from pg error: {e}")
         return JSONResponse(status_code=500, content={"error": "Something occured with db, try again!"})
-    

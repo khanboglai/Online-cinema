@@ -45,6 +45,15 @@ async def add_document(title: str, id: int):
     response = es.index(index='films', id=id, document=document)
     logger.info(f"film {title} added to elastic with id {id}")
 
+async def update_document(title: str, id: int):
+    document = {
+        "doc": {
+            "title": title
+        }
+    }
+    response = es.update(index='films', id=id, body=document)
+    logger.info(f"film {title} updated to elastic with id {id}")
+
 async def add_user_to_es(user_id: int, login: str):
     document = {'login': login}
     response = es.index(index='users', id=user_id, document=document)
@@ -56,7 +65,7 @@ async def delete_document(id: int):
 
 async def delete_user_from_es(user_id: int):
     response = es.delete(index='users', id=user_id)
-    logger.info(f"user with id {id} deleted from elastic")
+    logger.info(f"user with id {user_id} deleted from elastic")
 
 async def update_user_in_es(login: str, user_id: int):
     document = {

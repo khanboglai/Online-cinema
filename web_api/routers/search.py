@@ -22,21 +22,21 @@ router = APIRouter(
 async def get_search_results_html(user: UserDependency, request: Request, search_query: str, page: int):
     if user is None:
         return RedirectResponse(url="/login")
-    else:
-        images_by_tag = defaultdict(list)
-        response = await get_search_results(search_query, page)
 
-        for hit in response:
-            film = await get_film_by_id(int(hit["_id"]))
-            images_by_tag[f'Фильмы по запросу: "{search_query}"'].append({
-                                                                        # "cover": cover_url,
-                                                                        "name": film.name,
-                                                                        "id": film.id
-                                                                        },)
-        if len(images_by_tag) == 0:
-            return templates.TemplateResponse("search.html", {"request": request, "films": None})
-        else:
-            return templates.TemplateResponse("search.html", {"request": request, "films": images_by_tag})
+    images_by_tag = defaultdict(list)
+    response = await get_search_results(search_query, page)
+
+    for hit in response:
+        film = await get_film_by_id(int(hit["_id"]))
+        images_by_tag[f'Фильмы по запросу: "{search_query}"'].append({
+                                                                    # "cover": cover_url,
+                                                                    "name": film.name,
+                                                                    "id": film.id
+                                                                    },)
+    if len(images_by_tag) == 0:
+        return templates.TemplateResponse("search.html", {"request": request, "films": None, "user": user})
+    else:
+        return templates.TemplateResponse("search.html", {"request": request, "films": images_by_tag, "user": user})
         
 
 @router.get("/suggestions/{search_query}")
