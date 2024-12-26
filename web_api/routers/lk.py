@@ -30,7 +30,6 @@ async def get_lk_html(user: UserDependency,
     subscription = await get_subscription(user.id)
     is_sub_available = check_subscription(subscription)
     print("CHECK SUB: " + str(is_sub_available))
-    print("CHECK SUB: " + str(subscription.started_at))
 
     return templates.TemplateResponse(
         "lk.html",

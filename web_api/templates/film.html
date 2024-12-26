@@ -18,7 +18,18 @@
                 </form>
             </nav>
         </header>
-
+        {% if not is_sub_available%}
+        <div class="restricted-container">
+            <div class="restricted-content">
+                <svg class="lock-icon" width="64" height="64" viewBox="0 0 24 24">
+                  <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" fill="#e50914"/>
+                </svg>
+                <h2>Content Locked</h2>
+                <p>You can't see it. Update your plan.</p>
+                <button class="upgrade-btn" onclick="location.href='/lk/?'">Upgrade Now</button>
+            </div>
+        </div>
+        {% else %}
         <div class="video-container">
             {% if film.rating_kp != -1 and film.rating_kp is not none %}
             <div class="film-rating">{{ film.rating_kp }}/10 ⭐</div>
@@ -84,6 +95,7 @@
             <div class="error-message" id="errorMessage" style="display: none; color: red;"></div>
             {% endif %}
         </div>
+        {% endif %}
         <div class="comments-section">
             <h2 class="section-title">Оставить комментарий</h2>
             <form id="commentForm">

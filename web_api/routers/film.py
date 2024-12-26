@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from config import s3_client, BUCKET_NAME
 from config import templates
 from schemas.film import EditFilmForm
-from services.user import UserDependency, get_subscription
+from services.user import UserDependency, get_subscription, check_subscription
 from services.film import get_film_by_id, add_comment_to_db, get_all_comments, edit_film as edit_film_service, delete_film
 from services.interaction import add_interaction, add_time_into_interaction
 from schemas.comment import Comment, CommentRequest
@@ -23,22 +23,26 @@ router = APIRouter(prefix='/films', tags=['Filmpage'])
 async def get_film_html(user: UserDependency, request: Request, film_id: int):
     if user is None:
         return RedirectResponse(url="/login")
-    else:
-        await add_interaction(user.id, film_id)
-        film = await get_film_by_id(film_id)
-        if film.rating_kp is not None:
-            film.rating_kp = round(film.rating_kp, 1)   
-        
-        logger.info(f"Film response successed for {user.login}")
-        admin = False
-        if user.role == 'ROLE_ADMIN':
-            admin = True
-        return templates.TemplateResponse("film.html",
-                                          {"request": request,
-                                           "film": film,
-                                           "admin": admin,
-                                        #    "cover": cover_url,
-                                           })
+    await add_interaction(user.id, film_id)
+    film = await get_film_by_id(film_id)
+    if film.rating_kp is not None:
+        film.rating_kp = round(film.rating_kp, 1)
+
+    logger.info(f"Film response successed for {user.login}")
+    admin = False
+    if user.role == 'ROLE_ADMIN':
+        admin = True
+
+    subscription = await get_subscription(user.id)
+    is_sub_available = check_subscription(subscription)
+
+    return templates.TemplateResponse("film.html",
+                                      {"request": request,
+                                       "film": film,
+                                       "admin": admin,
+                                       "is_sub_available": is_sub_available
+                                    #    "cover": cover_url,
+                                       })
 
     
 @router.get("/video/{film_id}")
@@ -121,8 +125,6 @@ async def get_edit_film(request: Request, film_id: int, user: UserDependency):
     genres = ", ".join(film.genres)
     countries = ", ".join(film.countries)
     tags = ", ".join(film.tags)
-    subscription = await get_subscription(user.id)
-
 
     return templates.TemplateResponse(
         "edit_film.html", {
@@ -134,7 +136,6 @@ async def get_edit_film(request: Request, film_id: int, user: UserDependency):
             "countries": countries,
             "tags": tags,
             "id": film.id,
-            "subscription": subscription
         }
     )
 
