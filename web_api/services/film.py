@@ -11,6 +11,7 @@ from services.search import add_document, delete_document
 from schemas.film import SaveFilmRequest
 from schemas.comment import CommentRequest
 from elasticsearch import ConnectionError
+from boto3.exceptions import Boto3Error
 
 
 logging.basicConfig(level=logging.INFO)
@@ -142,5 +143,9 @@ async def get_all_comments(film_id: int):
 
 async def delete_film(film_id: int):
     await dao.delete_film_by_id(film_id)
+    logger.info(f"Deleted from pg")
     await delete_document(film_id)
+    logger.info(f"Deleted from Elastic")
+    s3_client.delete_object(Bucket=BUCKET_NAME, Key=f"{film_id}/image.png")
+    s3_client.delete_object(Bucket=BUCKET_NAME, Key=f"{film_id}/video.mp4")
     logger.info(f"Deleted film with id: {film_id}")
