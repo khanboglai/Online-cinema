@@ -13,6 +13,7 @@ from repository.interaction_dao import InteractionDao
 from repository.user_dao import ProfileDao, AuthDao
 from schemas.user import CreateUserRequest, EditUserRequest
 from models.models import Auth, Profile, Interaction, Film
+from services.search import delete_user_from_es, add_user_to_es
 
 # !!! SECRET !!!
 SECRET_KEY = settings.SECRET_KEY
@@ -40,6 +41,8 @@ async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
         raise UserIsExistError()
     
     user = await dao.find_by_username(username)
+    # Добавление записи о юзере в эластик
+    await add_user_to_es(user.id, user.login)
     # Создаем новый профиль в таблице profile
     await profile_dao.add(auth_id=user.id)
     access_token = create_access_token(user.login,
@@ -204,3 +207,7 @@ async def edit_user(user: UserDependency, form: EditUserRequest) -> Auth:
         raise UserEmailExistError()
 
     return user
+
+async def delete_user(user_id):
+    await dao.delete_by_auth_id(user_id)
+    await delete_user_from_es(user_id)
