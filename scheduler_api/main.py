@@ -40,7 +40,7 @@ async def scheduler_task():
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     moscow_tz = pytz.timezone("Europe/Moscow") # настройка временной зоны
-    scheduler.add_job(scheduler_task, CronTrigger(hour=12, minute=42, timezone=moscow_tz)) # start job in 00:00 every day
+    scheduler.add_job(scheduler_task, CronTrigger(hour=18, minute=34, timezone=moscow_tz)) # start job in 00:00 every day
     scheduler.start()
     logger.info("Scheduler started and job added")
 

@@ -8,7 +8,7 @@ from boto3.exceptions import Boto3Error
 from logs import logger
 from config import templates
 from services.user import UserDependency
-from services.film import get_newest_films, get_recommend_films, get_film_by_id
+from services.film import get_newest_films, get_recommend_films, get_film_by_id, get_recommended_films_for_new_user
 from config import s3_client, BUCKET_NAME
 
 
@@ -25,6 +25,8 @@ async def get_home_html(user: UserDependency, request: Request):
     else:
         images_by_tag = defaultdict(list)
         recs = await get_recommend_films(user.id)
+        if recs is None:
+            recs = await get_recommended_films_for_new_user()
         # здесь надо будет проверить этот список и в случае его пустоты отдать рекомендации профиля с id=0 
         if recs is not None:
             for rec in recs:
@@ -40,9 +42,9 @@ async def get_home_html(user: UserDependency, request: Request):
         for film in films:
             images_by_tag["New"].append({
                                         #  "cover": cover_url,
-                                         "name": film.name,
-                                         "id": film.id,
-                                         })
+                                            "name": film.name,
+                                            "id": film.id,
+                                            })
         # images_by_tag = None
         if user.role == 'ROLE_ADMIN':
             return templates.TemplateResponse("home_admin.html", {"request": request,

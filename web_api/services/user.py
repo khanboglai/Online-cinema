@@ -55,6 +55,7 @@ async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
 async def authenticate_user(username: str, password: str) -> Auth | None:
     """Auth user with his hashed password"""
     user = await dao.find_by_username(username)
+    # if not user or user.id == 0:
     if not user:
         return None
     if not bcrypt_context.verify(password, user.hashed_password):
