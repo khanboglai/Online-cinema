@@ -18,7 +18,7 @@ router = APIRouter(prefix='', tags=['auth'])
 async def get_login_html(user: UserDependency, request: Request):
     """Returns template for login page"""
     if user is None:
-        return templates.TemplateResponse("login.html", {"request": request})
+        return templates.TemplateResponse({"request": request}, "login.html")
     return RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
 
 
@@ -26,7 +26,7 @@ async def get_login_html(user: UserDependency, request: Request):
 async def get_register_html(user: UserDependency, request: Request):
     """Returns template for register page"""
     if user is None:
-        return templates.TemplateResponse("register.html", {"request": request})
+        return templates.TemplateResponse({"request": request}, "register.html")
     return RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
 
 

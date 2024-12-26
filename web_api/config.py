@@ -15,24 +15,25 @@ logger = logging.getLogger(__name__)
 
 class Settings(BaseSettings):
     """ Settings """
-    DB_HOST: str = os.getenv("DB_HOST")
-    DB_PORT: int = os.getenv("DB_PORT")
-    DB_NAME: str = os.getenv("DB_NAME")
-    DB_USER: str = os.getenv("DB_USER")
-    DB_PASSWORD: str = os.getenv("DB_PASSWORD")
-    SECRET_KEY: str = os.getenv("SECRET_KEY")
-    ALGORITHM: str = os.getenv("ALGORITHM")
+    DB_HOST: str | None = os.getenv("DB_HOST")
+    DB_PORT: str | None = os.getenv("DB_PORT")
+    DB_NAME: str | None = os.getenv("DB_NAME")
+    DB_USER: str | None = os.getenv("DB_USER")
+    DB_PASSWORD: str | None = os.getenv("DB_PASSWORD")
+    SECRET_KEY: str | None = os.getenv("SECRET_KEY")
+    ALGORITHM: str | None = os.getenv("ALGORITHM")
     
 
 
 settings = Settings()
 
-templates = Jinja2Templates(directory="templates")
+templates_dir = os.path.join(os.path.dirname(__file__), 'templates')
+templates = Jinja2Templates(directory=templates_dir)
 
 def get_db_url():
     """Getter of db URL"""
-    return (f"postgresql+asyncpg://{settings.DB_USER}:{settings.DB_PASSWORD}@"
-            f"{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}")
+    return (f"postgresql+asyncpg://debug:pswd@"
+            f"172.18.0.3:5432/cinema")
 
 
 # S3 settings
