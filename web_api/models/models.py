@@ -14,6 +14,7 @@ class Auth(Base):
 
     # Связь 1 к 1 с таблицей Profile
     profile = relationship("Profile", back_populates="auth", uselist=False, cascade="all, delete-orphan")
+    subscription = relationship("Subscription", back_populates="auth")
 
 class Profile(Base):
     """Definition of table Profile"""
@@ -97,3 +98,11 @@ class Recommend(Base):
     film = relationship("Film", back_populates="recommend")
 
     profile = relationship("Profile", back_populates="recommend")
+
+class Subscription(Base):
+    __tablename__ = 'subscription'
+    id = Column(Integer, ForeignKey('auth.id', ondelete='CASCADE'), primary_key=True)
+    started_at = Column(DateTime)
+    finished_at = Column(DateTime)
+
+    auth = relationship("Auth", back_populates="subscription")

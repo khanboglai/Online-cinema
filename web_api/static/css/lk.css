@@ -3,6 +3,7 @@
   --secondary: #e50914;
   --accent: #564d4d;
   --light: #f5f5f5;
+  --unavailable: #7c7c7c;
 }
 
 * {
@@ -160,6 +161,38 @@ body {
 
 .movie-info {
   padding: 15px;
+}
+
+.subscription-button {
+  margin-top: 10px;
+  background: var(--secondary);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 100%;
+}
+
+.subscription-button:hover {
+  background: #ff0a16;
+}
+
+.cancel-subscription-button {
+  margin-top: 10px;
+  background: var(--unavailable);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 100%;
+}
+
+.cancel-subscription-button:hover {
+  background: #474747;
 }
 
 button {

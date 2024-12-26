@@ -108,6 +108,23 @@ function goBack() {
   window.location.href = '/lk';
 }
 
+async function changeSubscription(userId, setTo) {
+  const formData = new FormData();
+  formData.append('user_id', userId);
+  formData.append('set_to', setTo);
+  const response = fetch(
+      `http://localhost:8000/lk/subscription`, {
+        method: 'POST',
+        body: formData
+      }
+  ).then(response => {
+    if (!response.ok) throw Error("Subscription update error");
+    console.log("Subscription plan was updated successfully");
+
+    location.reload()
+  }).catch(error => console.error(error));
+}
+
 // document.addEventListener('DOMContentLoaded', () => {
 //   document.getElementById('birthDate').value = '1990-01-01';
 

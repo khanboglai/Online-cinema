@@ -30,3 +30,8 @@ class EditUserRequest(BaseModel):
         if d > date.today():
             raise ValueError('Birth date cannot be in the future')
         return d
+
+class ChangeUserSubscription(BaseModel):
+    """Change user subscription plan"""
+    user_id: int = Field(..., description="User id")
+    set_to: bool = Field(..., description="Value of subscription plan")
