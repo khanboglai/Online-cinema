@@ -76,6 +76,9 @@
             {% if admin %}
             <form class="delete-form" id="deleteForm" onsubmit="handleDelete(event)">
                 <input type="hidden" name="film_id" id="film_id" value="{{ film.id }}">
+                <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+                    <div class="spinner"></div>
+                  </div>
                 <button type="submit">Удалить фильм</button>
             </form>
             <div class="error-message" id="errorMessage" style="display: none; color: red;"></div>

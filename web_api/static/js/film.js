@@ -226,7 +226,8 @@ async function handleDelete(event) {
     if (!confirmation) {
         return;
     }
-
+    const loadingIndicator = document.getElementById('loadingIndicator');
+    loadingIndicator.style.display = 'flex';
     const formData = new FormData(document.getElementById('deleteForm'));
     const film_id = formData.get('film_id')
 
@@ -235,9 +236,11 @@ async function handleDelete(event) {
     });
     if (!response.ok) {
         const result = await response.json();
+        loadingIndicator.style.display = 'none';
         document.getElementById('errorMessage').textContent = result.error;
         document.getElementById('errorMessage').style.display = 'block';
     } else {
+        loadingIndicator.style.display = 'none';
         window.location.replace('/home');
     }
 }
