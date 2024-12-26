@@ -13,6 +13,7 @@ class RecommendDao(BaseDao):
             query = (
                 select(cls.model)
                 .filter_by(profile_id = profile_id)
+                .order_by(cls.model.rank.asc())
             )
 
             result = (await session.execute(query)).scalars().all()
