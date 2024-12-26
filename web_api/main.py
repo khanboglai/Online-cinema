@@ -24,7 +24,8 @@ app.include_router(film.router)
 app.include_router(search.router)
 app.include_router(manage.router)
 
-app.mount('/static', StaticFiles(directory='static'), 'static')
+static_dir = os.path.join(os.path.dirname(__file__), 'static')
+app.mount('/static', StaticFiles(directory=static_dir), 'static')
 
 
 @asynccontextmanager
