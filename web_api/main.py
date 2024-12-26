@@ -51,6 +51,7 @@ app.include_router(home.router)
 app.include_router(upload_film.router)
 app.include_router(film.router)
 app.include_router(search.router)
+app.include_router(manage.router)
 
 static_dir = os.path.join(os.path.dirname(__file__), 'static')
 app.mount('/static', StaticFiles(directory=static_dir), 'static')

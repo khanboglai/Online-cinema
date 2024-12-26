@@ -33,8 +33,8 @@ class RecsWriter(StageABC):
 
                 logger.info("3/3 - Inserting new recommendations...")
                 query = """
-                INSERT INTO recommend (profile_id, film_ids)
-                VALUES ($1, $2) 
+                INSERT INTO recommend (profile_id, film_id, rank)
+                VALUES ($1, $2, $3) 
                 RETURNING profile_id
                 """
                 await conn.executemany(query, df.itertuples(index=False, name=None))

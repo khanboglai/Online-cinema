@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: 1629c8e97bfa
+Revision ID: dff07ef9f647
 Revises: 
-Create Date: 2024-12-25 21:27:09.645853
+Create Date: 2024-12-26 14:37:01.300115
 
 """
 from typing import Sequence, Union
@@ -14,7 +14,7 @@ from services.user import bcrypt_context
 
 
 # revision identifiers, used by Alembic.
-revision: str = '1629c8e97bfa'
+revision: str = 'dff07ef9f647'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -53,7 +53,7 @@ def upgrade() -> None:
     sa.Column('birth_date', sa.Date(), nullable=True),
     sa.Column('sex', sa.String(), nullable=True),
     sa.Column('email', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['auth_id'], ['auth.id'], ),
+    sa.ForeignKeyConstraint(['auth_id'], ['auth.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
@@ -64,8 +64,8 @@ def upgrade() -> None:
     sa.Column('last_interaction', sa.DateTime(), nullable=True),
     sa.Column('count_interaction', sa.Integer(), nullable=True),
     sa.Column('watchtime', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['film_id'], ['film.id'], ),
-    sa.ForeignKeyConstraint(['profile_id'], ['profile.id'], ),
+    sa.ForeignKeyConstraint(['film_id'], ['film.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['profile_id'], ['profile.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('recommend',
@@ -73,7 +73,8 @@ def upgrade() -> None:
     sa.Column('profile_id', sa.Integer(), nullable=True),
     sa.Column('film_id', sa.Integer(), nullable=True),
     sa.Column('rank', sa.Integer(), nullable=True),
-    sa.ForeignKeyConstraint(['profile_id'], ['profile.id'], ),
+    sa.ForeignKeyConstraint(['film_id'], ['film.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['profile_id'], ['profile.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     op.create_table('reply',
@@ -82,10 +83,22 @@ def upgrade() -> None:
     sa.Column('film_id', sa.Integer(), nullable=True),
     sa.Column('rating', sa.Float(), nullable=True),
     sa.Column('text', sa.String(), nullable=True),
-    sa.ForeignKeyConstraint(['film_id'], ['film.id'], ),
-    sa.ForeignKeyConstraint(['profile_id'], ['profile.id'], ),
+    sa.ForeignKeyConstraint(['film_id'], ['film.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['profile_id'], ['profile.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
+
+    # op.execute(f"""
+    #         INSERT INTO "auth" (id, login, hashed_password, role) VALUES (
+    #                 0, 'default_user', '{bcrypt_context.hash("passwd")}', 'ROLE_USER'
+    #            ); 
+    #     """)
+    # op.execute(f"""
+    #         INSERT INTO "profile" (id, auth_id) VALUES (
+    #                 0, 0
+    #            );
+    #     """)
+
     op.execute(f"""
             INSERT INTO "auth" (id, login, hashed_password, role) VALUES (
                     0, 'admin', '{bcrypt_context.hash("passwd")}', 'ROLE_ADMIN'
@@ -96,6 +109,7 @@ def upgrade() -> None:
                     0, 0
                );
         """)
+
     # ### end Alembic commands ###
 
 

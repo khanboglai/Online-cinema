@@ -33,7 +33,7 @@ templates = Jinja2Templates(directory=templates_dir)
 def get_db_url():
     """Getter of db URL"""
     return (f"postgresql+asyncpg://debug:pswd@"
-            f"172.18.0.3:5432/cinema")
+            f"cinema_postgres_db:5432/cinema")
 
 
 # S3 settings

@@ -48,16 +48,17 @@ async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
     await add_user_to_es(user.id, user.login)
     # Создаем новый профиль в таблице profile
     await profile_dao.add(auth_id=user.id)
-    access_token = create_access_token(user.login,
-                                       user.id)
+    # access_token = create_access_token(user.login,
+    #                                    user.id)
 
-    return access_token
+    # return access_token
 
 # async def get_username_from_auth()
 
 async def authenticate_user(username: str, password: str) -> Auth | None:
     """Auth user with his hashed password"""
     user = await dao.find_by_username(username)
+    # if not user or user.id == 0:
     if not user:
         return None
     if not bcrypt_context.verify(password, user.hashed_password):

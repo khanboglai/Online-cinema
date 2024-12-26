@@ -35,14 +35,14 @@ async def create_user(response: Response,
                       create_user_request: CreateUserRequest = Form()):
     """Foo for creating new user"""
     try:
-        access_token = await register_user(create_user_request)
+        await register_user(create_user_request)
     except UserIsExistError as e:
         logger.error(e)
         return JSONResponse(status_code=401, content={"error": e.message})
 
-    response = RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
-    response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
-    return response
+    # response = RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
+    # response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
+    # return response
 
 
 @router.post("/login")
