@@ -17,12 +17,12 @@ class RecsWriter(StageABC):
     async def run(self, input: StageOut | None = None) -> StageOut:
         recs = input.unpack()
 
-        recs = recs[["user_id", "item_id"]]
+        recs = recs[["user_id", "item_id", "rank"]]
 
         logger.info("1/3 - Processing data...")
         df = pd.DataFrame(recs)
-        recs_grouped = df.groupby("user_id")["item_id"].agg(list).reset_index()
-        recs_grouped = [tuple(row) for row in recs_grouped.values]
+        # recs_grouped = df.groupby("user_id")["item_id"].agg(list).reset_index()
+        # recs_grouped = [tuple(row) for row in recs_grouped.values]
         
         try:
             conn = await asyncpg.connect(**self._db_config)
@@ -37,7 +37,7 @@ class RecsWriter(StageABC):
                 VALUES ($1, $2) 
                 RETURNING profile_id
                 """
-                await conn.executemany(query, recs_grouped)
+                await conn.executemany(query, df.itertuples(index=False, name=None))
             await conn.close()
         except asyncpg.PostgresError as e:
             print(f"Database error: {e}")
