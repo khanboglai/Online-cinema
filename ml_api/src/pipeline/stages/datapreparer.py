@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from logs import logger
 from typing import Dict, Any, Tuple
 from pipeline.pipeline import *
 
@@ -14,15 +15,13 @@ class DataPreparer(StageABC):
     async def run(self, input: StageOut | None = None) -> StageOut:
         raw_users_df, raw_items_df, raw_interactions_df = input.unpack()
 
-        print(raw_users_df)
-        print(raw_items_df)
-        print(raw_interactions_df)
-        
-        print("users")
+        logger.info("1/3 - Preparing 'users'...")
         prepared_users = self._prepare_users(raw_users_df)
-        print("items")
+    
+        logger.info("2/3 - Preparing 'items'...")
         prepared_items = self._prepare_items(raw_items_df)
-        print("interactions")
+
+        logger.info("3/3 - Preparing 'interactions'...")
         prepared_interactions = self._prepare_interactions(raw_interactions_df)
 
         return StageOut((prepared_users, prepared_items, prepared_interactions))

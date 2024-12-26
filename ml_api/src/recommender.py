@@ -13,8 +13,8 @@ class Recommender(RecommenderABC):
     """
 
     def __init__(self, 
-                 n_candidates: int = 10,
-                 n_recs: int = 2,
+                 n_candidates: int = 200,
+                 n_recs: int = 10,
                  candidates_selector_cfg: dict[str, Any] | None = None,
                  reranker_cfg: dict[str, Any] | None = None
                  ):
@@ -29,6 +29,8 @@ class Recommender(RecommenderABC):
         self._candidate_selector = ImplicitItemKNNWrapperModel(BM25Recommender(**candidates_selector_cfg))
         # second-stage model
         self._reranker = CatBoostClassifier(**reranker_cfg)
+        # basic model
+        self._default_model = PopularModel(popularity="n_interactions")
 
         # dataframes
         self._items_df: pd.DataFrame | None = None
@@ -61,17 +63,14 @@ class Recommender(RecommenderABC):
         self._hot_users_id = set(self._interactions_df["user_id"].unique().tolist())
         self._warm_users_id = set([u for u in set(self._users_df["user_id"].unique().tolist())\
             if u not in self._hot_users_id])
+        self._warm_users_id.add(0)
 
-        if len(interactions_df) < 100:
-            self._candidate_selector = RandomModel()
+        if len(interactions_df) < 1000:
+            if len(interactions_df) < 100:
+                self._default_model = RandomModel()
+            self._default_model.fit(self._dataset)
             self._reranker = None
-            self._candidate_selector.fit(self._dataset)
-            self._is_fitted = True
-            return
-        elif len(interactions_df) < 10000:
-            self._candidate_selector = PopularModel(popularity="n_interactions")
-            self._reranker = None
-            self._candidate_selector.fit(self._dataset)
+            self._candidate_selector = None
             self._is_fitted = True
             return
 
@@ -150,7 +149,7 @@ class Recommender(RecommenderABC):
             raise RuntimeError("Recommender is not fitted yet")
         
         if self._reranker is None:
-            return self._candidate_selector.recommend(
+            return self._default_model.recommend(
                 k=self._n_recs,
                 users=self._users_df["user_id"],
                 dataset=self._dataset,
@@ -189,4 +188,12 @@ class Recommender(RecommenderABC):
         candidates.drop(["score", "reranker_score"], axis=1, inplace=True)
         candidates["rank"] = candidates.groupby("user_id").cumcount() + 1
         
+        # make recos for "warm" users
+        warm_recos = self._default_model.recommend(
+            k=self._n_recs,
+            users=self._warm_users_id,
+            dataset=self._dataset,
+            filter_viewed=True
+        )
+
         return candidates.reset_index(drop=True)
