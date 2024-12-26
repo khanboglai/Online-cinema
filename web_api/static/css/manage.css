@@ -15,7 +15,7 @@
 
 .search-container {
     position: relative;
-    width: 300px;
+    width: 100%;
     /* flex-grow: 1; */
     display: flex;
     justify-content: center;
@@ -29,16 +29,14 @@
 .search-suggestions {
     position: absolute;
     top: 100%;
-    left: 0;
-    right: 0;
     background: var(--white-bg);
     border-top: none;
     border-radius: 0 0 20px 20px;
     max-height: 0;
-    max-width: 300px;
     overflow: hidden;
     transition: max-height 0.3s ease;
     z-index: 1000;
+    width: 1000px;
 }
 
 .search-suggestions.active {
@@ -93,7 +91,7 @@ nav {
     padding: 0.5rem 1rem;
     border-radius: 20px;
     color: var(--text-color);
-    width: 300px;
+    width: 1000px;
 }
 
 .lk-btn {
@@ -186,43 +184,4 @@ nav {
     0% { opacity: 1; }
     50% { opacity: 0.6; }
     100% { opacity: 1; }
-}
-
-.edit-btn {
-    position: absolute; /* Абсолютное позиционирование */
-    bottom: 10px; /* Отступ от нижнего края */
-    right: 10px; /* Отступ от правого края */
-    background-color: rgba(0, 0, 0, 0.7); /* Полупрозрачный фон кнопки */
-    color: white; /* Цвет иконки */
-    border: none; /* Убираем границу */
-    padding: 8px; /* Внутренние отступы */
-    border-radius: 50%; /* Круглая кнопка */
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 10; /* Устанавливаем, чтобы кнопка была поверх остальных элементов */
-    transition: transform 0.3s, background-color 0.3s;
-}
-
-.edit-btn:hover {
-    background-color: rgba(229, 9, 20, 0.8); /* Изменение цвета при наведении */
-    transform: scale(1.1); /* Увеличение кнопки при наведении */
-}
-
-.edit-btn svg {
-    width: 20px; /* Размер иконки */
-    height: 20px;
-    stroke: white; /* Белый цвет линии иконки */
-    fill: none; /* Прозрачный фон внутри иконки */
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
-.edit-btn:active {
-  animation: pulse 0.3s ease-in-out;
 }

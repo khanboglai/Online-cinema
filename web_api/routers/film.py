@@ -1,21 +1,22 @@
 import os
 import re
 
-from fastapi import APIRouter, Request, Response, HTTPException
-from fastapi.responses import RedirectResponse, StreamingResponse
+from fastapi import APIRouter, Request, Response, HTTPException, Form
+from fastapi.responses import RedirectResponse, StreamingResponse, JSONResponse
 from starlette.templating import Jinja2Templates
-from boto3.exceptions import Boto3Error
+from sqlalchemy.exc import SQLAlchemyError
 
 from config import s3_client, BUCKET_NAME
+from config import templates
+from schemas.film import EditFilmForm
 from services.user import UserDependency
-from services.film import get_film_by_id, add_comment_to_db, get_all_comments
+from services.film import get_film_by_id, add_comment_to_db, get_all_comments, edit_film as edit_film_service, delete_film
 from services.interaction import add_interaction, add_time_into_interaction
 from schemas.comment import Comment, CommentRequest
 from logs import logger
 
-router = APIRouter(prefix='/films', tags=['Filmpage'])
 
-templates = Jinja2Templates(directory="templates")
+router = APIRouter(prefix='/films', tags=['Filmpage'])
 
     
 @router.get("/{film_id}")
@@ -25,29 +26,19 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
     else:
         await add_interaction(user.id, film_id)
         film = await get_film_by_id(film_id)
-
-        cover_key = f"{film.id}/image.png"
-        try:
-            cover_url = s3_client.generate_presigned_url(
-                'get_object',
-                Params={'Bucket': BUCKET_NAME, 'Key': cover_key},
-                ExpiresIn=3600  # Время жизни URL в секундах
-            )
-            cover_url = cover_url.replace("storage", "localhost", 1)
-            logger.info("Film request successed")
-        except Boto3Error as e:
-            logger.error(e)
-            cover_url = "/static/image.png" 
-        
         if film.rating_kp is not None:
             film.rating_kp = round(film.rating_kp, 1)   
         
         logger.info(f"Film response successed for {user.login}")
-
+        admin = False
+        if user.role == 'ROLE_ADMIN':
+            admin = True
         return templates.TemplateResponse("film.html",
                                           {"request": request,
                                            "film": film,
-                                           "cover": cover_url})
+                                           "admin": admin,
+                                        #    "cover": cover_url,
+                                           })
 
     
 @router.get("/video/{film_id}")
@@ -99,13 +90,6 @@ async def get_video(request: Request, film_id: int):
     logger.info("Video stream response completed")
     return StreamingResponse(video_stream, headers=headers, media_type="video/mp4", status_code=206)
 
-    # def video_stream():
-    #     with open(video_path, "rb") as video_file:
-    #         while chunk := video_file.read(1024 * 1024):  # Читаем по 1 МБ за раз
-    #             yield chunk
-
-    # return StreamingResponse(video_stream(), media_type="video/mp4")
-
 
 @router.post('/watchtime/{film_id}')
 async def record_watchtime(user: UserDependency, film_id: int, time_watched: dict):
@@ -126,3 +110,40 @@ async def get_comments(request: Request, film_id: int):
     comments = await get_all_comments(film_id)
     return [{"name": comment.name, "surname": comment.surname, "rating": comment.rating, "text": comment.text} for comment in comments]
     
+@router.get('/edit/{film_id}')
+async def get_edit_film(request: Request, film_id: int, user: UserDependency):
+    if user is None or user.role != 'ROLE_ADMIN':
+        return RedirectResponse(url="/login")
+
+    film = await get_film_by_id(film_id)
+    directors = ", ".join(film.directors)
+    actors = ", ".join(film.actors)
+    genres = ", ".join(film.genres)
+    countries = ", ".join(film.countries)
+    tags = ", ".join(film.tags)
+
+    return templates.TemplateResponse(
+        "edit_film.html", {
+            "request": request,
+            "film": film,
+            "directors": directors,
+            "actors": actors,
+            "genres": genres,
+            "countries": countries,
+            "tags": tags,
+            "id": film.id
+        }
+    )
+
+@router.post('/edit')
+async def edit_film(response: Response, film: EditFilmForm = Form(...)):
+    print("film age_rating: " + str(film.age_rating))
+    await edit_film_service(film)
+
+@router.post('/delete/{film_id}')
+async def delete_film_request(request: Request, film_id: int):
+    try:
+        await delete_film(film_id)
+    except SQLAlchemyError as e:
+        logger.error(f"Delete from pg error: {e}")
+        return JSONResponse(status_code=500, content={"error": "Something occured with db, try again!"})

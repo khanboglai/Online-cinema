@@ -13,7 +13,7 @@
                     <div class="search-suggestions" id="suggestions">
                     </div>
                 </div>
-                <form action="/lk" method="GET">
+                <form action="/lk/" method="GET">
                     <button type="submit" class="lk-btn">Личный кабинет</button>
                 </form>
             </nav>
@@ -31,12 +31,12 @@
                     </svg>
                 </div>
             </div>
-            <img src="{{ cover }}" 
+            <img src="/image/{{ film.id }}" 
                  alt="{{ film.name }}" 
                  class="film-cover" 
                  id="filmCover">
             <video class="video-player" id="videoPlayer">
-                <source src="http://localhost:8000/films/video/{{ film.id }}" type="video/mp4">
+                <source src="/films/video/{{ film.id }}" type="video/mp4">
             </video>
             <div class="video-controls">
                 <button class="control-btn" id="playPauseBtn">
@@ -73,6 +73,16 @@
             <p class="movie-description">
                 {{ film.description }}
             </p>
+            {% if admin %}
+            <form class="delete-form" id="deleteForm" onsubmit="handleDelete(event)">
+                <input type="hidden" name="film_id" id="film_id" value="{{ film.id }}">
+                <div id="loadingIndicator" class="loading-indicator" style="display: none;">
+                    <div class="spinner"></div>
+                  </div>
+                <button type="submit">Удалить фильм</button>
+            </form>
+            <div class="error-message" id="errorMessage" style="display: none; color: red;"></div>
+            {% endif %}
         </div>
         <div class="comments-section">
             <h2 class="section-title">Оставить комментарий</h2>
