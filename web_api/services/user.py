@@ -45,10 +45,10 @@ async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
     await add_user_to_es(user.id, user.login)
     # Создаем новый профиль в таблице profile
     await profile_dao.add(auth_id=user.id)
-    access_token = create_access_token(user.login,
-                                       user.id)
+    # access_token = create_access_token(user.login,
+    #                                    user.id)
 
-    return access_token
+    # return access_token
 
 # async def get_username_from_auth()
 

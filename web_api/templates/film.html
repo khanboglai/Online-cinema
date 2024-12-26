@@ -73,6 +73,16 @@
             <p class="movie-description">
                 {{ film.description }}
             </p>
+            {% if film.actors %}
+            <h2 class="movie-description">
+                Актерскй состав:
+            </h2>
+            <div class="movie-meta">
+                    {% for actor in film.actors %}
+                        {{ actor }} 
+                    {% endfor %}
+            </div>
+            {% endif %}
             {% if admin %}
             <form class="delete-form" id="deleteForm" onsubmit="handleDelete(event)">
                 <input type="hidden" name="film_id" id="film_id" value="{{ film.id }}">
