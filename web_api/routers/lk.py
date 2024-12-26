@@ -24,12 +24,10 @@ async def get_lk_html(user: UserDependency,
     if user is None:
         return RedirectResponse(url="/login")
     profile = await get_profile_by_user_id(user.id)
-    watchtime = await get_general_watchtime_by_user_id(user.id)
     number_of_recently_watched = 5
     recently_watched = await get_recently_watched(user.id, number_of_recently_watched)
     subscription = await get_subscription(user.id)
     is_sub_available = check_subscription(subscription)
-    print("CHECK SUB: " + str(is_sub_available))
 
     return templates.TemplateResponse(
         "lk.html",
@@ -37,7 +35,6 @@ async def get_lk_html(user: UserDependency,
             "auth": user,
             "profile": profile,
             "age": get_age(profile.birth_date),
-            "watchtime": watchtime,
             "recently_watched": recently_watched,
             "subscription": subscription,
             "is_sub_available": is_sub_available,
@@ -50,19 +47,18 @@ async def get_edit_html(user: UserDependency,
                         request: Request):
     if user is None:
         return RedirectResponse(url="/login")
+    profile = await get_profile_by_user_id(user.id)
     """Personal account edit page"""
     # name: str | None = await get_name_by_user_id(user)
     # surname: str | None = await get_surname_by_user_id(user)
     # birth_date: datetime | None = await get_birth_date_by_user_id(user)
     # email: str | None = await get_email_by_user_id(user)
-    subscription = check_subscription(user)
     return templates.TemplateResponse(
         "edit_lk.html",
         {
             "request": request,
-            "profile": user.profile,
+            "profile": profile,
             "auth": user,
-            "subscription": subscription
         }
     )
 

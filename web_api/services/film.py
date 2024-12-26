@@ -8,6 +8,7 @@ from repository.user_dao import ProfileDao
 from repository.comment_dao import CommentDao
 from repository.recommend_dao import RecommendDao
 from services.search import add_document, update_document, delete_document
+from services.user import get_age
 from schemas.film import SaveFilmRequest, EditFilmForm
 from schemas.comment import CommentRequest
 from elasticsearch import ConnectionError
@@ -153,3 +154,12 @@ async def delete_film(film_id: int):
     s3_client.delete_object(Bucket=BUCKET_NAME, Key=f"{film_id}/image.png")
     s3_client.delete_object(Bucket=BUCKET_NAME, Key=f"{film_id}/video.mp4")
     logger.info(f"Deleted film with id: {film_id}")
+
+async def check_age(user_id: int, film_id: int):
+    profile = await user_dao.find_by_auth_id(user_id)
+    film = await dao.find_by_id(film_id)
+    if profile.birth_date is None:
+        return False
+    if get_age(profile.birth_date) < film.age_rating and user_id != 0:
+        return False
+    return True

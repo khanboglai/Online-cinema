@@ -113,7 +113,7 @@ async function changeSubscription(userId, setTo) {
   formData.append('user_id', userId);
   formData.append('set_to', setTo);
   const response = fetch(
-      `http://localhost:8000/lk/subscription`, {
+      `/lk/subscription`, {
         method: 'POST',
         body: formData
       }

@@ -10,7 +10,7 @@ from config import s3_client, BUCKET_NAME
 from config import templates
 from schemas.film import EditFilmForm
 from services.user import UserDependency, get_subscription, check_subscription
-from services.film import get_film_by_id, add_comment_to_db, get_all_comments, edit_film as edit_film_service, delete_film
+from services.film import get_film_by_id, add_comment_to_db, get_all_comments, edit_film as edit_film_service, delete_film, check_age
 from services.interaction import add_interaction, add_time_into_interaction
 from schemas.comment import Comment, CommentRequest
 from logs import logger
@@ -35,13 +35,14 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
 
     subscription = await get_subscription(user.id)
     is_sub_available = check_subscription(subscription)
+    is_age_available = await check_age(user.id, film_id)
 
     return templates.TemplateResponse("film.html",
                                       {"request": request,
                                        "film": film,
                                        "admin": admin,
-                                       "is_sub_available": is_sub_available
-                                    #    "cover": cover_url,
+                                       "is_sub_available": is_sub_available,
+                                       "is_age_available": is_age_available
                                        })
 
     

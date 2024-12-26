@@ -1,8 +1,8 @@
 """Initial migration
 
-Revision ID: dff07ef9f647
+Revision ID: f65f39a8bc00
 Revises: 
-Create Date: 2024-12-26 14:37:01.300115
+Create Date: 2024-12-26 19:05:39.403359
 
 """
 from typing import Sequence, Union
@@ -14,7 +14,7 @@ from services.user import bcrypt_context
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'dff07ef9f647'
+revision: str = 'f65f39a8bc00'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -57,6 +57,13 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email')
     )
+    op.create_table('subscription',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('started_at', sa.DateTime(), nullable=True),
+    sa.Column('finished_at', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['id'], ['auth.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
     op.create_table('interaction',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('profile_id', sa.Integer(), nullable=True),
@@ -87,18 +94,6 @@ def upgrade() -> None:
     sa.ForeignKeyConstraint(['profile_id'], ['profile.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
-
-    # op.execute(f"""
-    #         INSERT INTO "auth" (id, login, hashed_password, role) VALUES (
-    #                 0, 'default_user', '{bcrypt_context.hash("passwd")}', 'ROLE_USER'
-    #            ); 
-    #     """)
-    # op.execute(f"""
-    #         INSERT INTO "profile" (id, auth_id) VALUES (
-    #                 0, 0
-    #            );
-    #     """)
-
     op.execute(f"""
             INSERT INTO "auth" (id, login, hashed_password, role) VALUES (
                     0, 'admin', '{bcrypt_context.hash("passwd")}', 'ROLE_ADMIN'
@@ -109,7 +104,6 @@ def upgrade() -> None:
                     0, 0
                );
         """)
-
     # ### end Alembic commands ###
 
 
@@ -118,6 +112,7 @@ def downgrade() -> None:
     op.drop_table('reply')
     op.drop_table('recommend')
     op.drop_table('interaction')
+    op.drop_table('subscription')
     op.drop_table('profile')
     op.drop_table('film')
     op.drop_table('auth')

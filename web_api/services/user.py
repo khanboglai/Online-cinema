@@ -187,7 +187,8 @@ async def edit_user(user: UserDependency, form: EditUserRequest) -> Auth:
     profile = await profile_dao.find_by_auth_id(user.id)
     if form.login:
         user.login = form.login
-        await update_user_in_es(form.login, user.id)
+        if user.id != 0:
+            await update_user_in_es(form.login, user.id)
     if form.new_password:
         user.hashed_password = bcrypt_context.hash(form.new_password)
     if form.name:
