@@ -40,8 +40,21 @@
       <div class="stats-grid">
         <div class="stat-card">
           <h3>Subscription Status</h3>
-          <p class="amount">Premium 4K</p>
-          <small>Next billing: 15 Dec 2023</small>
+          {% if not subscription %}
+          <p class="amount">Free Plan</p>
+          {% else %}
+          <p class="amount">Premium Plan</p>
+          {% endif %}
+
+          {% if subscription %}
+          <small>Next billing: {{ subscription.finished_at.strftime("%d.%m.%Y") }}</small>
+          {% endif %}
+
+          {% if not subscription %}
+          <button class="subscription-button" onclick="changeSubscription('{{ auth.id }}', true)">Upgrade Plan</button>
+          {% else %}
+          <button class="cancel-subscription-button" onclick="changeSubscription('{{ auth.id }}', false)">Cancel Plan</button>
+          {% endif %}
         </div>
         <div class="stat-card">
           <h3>Watch Time</h3>

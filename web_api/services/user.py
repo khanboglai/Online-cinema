@@ -10,20 +10,23 @@ from jose import jwt, JWTError
 from config import settings
 from exceptions.exceptions import UserIsExistError, UserEmailExistError
 from repository.interaction_dao import InteractionDao
+from repository.subscription_dao import SubscriptionDao
 from repository.user_dao import ProfileDao, AuthDao
-from schemas.user import CreateUserRequest, EditUserRequest
-from models.models import Auth, Profile, Interaction, Film
+from schemas.user import CreateUserRequest, EditUserRequest, ChangeUserSubscription
+from models.models import Auth, Profile, Interaction, Film, Subscription
 from services.search import delete_user_from_es, add_user_to_es, update_user_in_es
 
 # !!! SECRET !!!
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
+SUBSCRIPTION_DURATION = timedelta(days=30)
 
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 dao = AuthDao()
 profile_dao = ProfileDao()
 interaction_dao = InteractionDao()
+subscription_dao = SubscriptionDao()
 
 async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
     """Foo for creating new user"""
@@ -212,3 +215,27 @@ async def edit_user(user: UserDependency, form: EditUserRequest) -> Auth:
 async def delete_user(user_id):
     await dao.delete_by_auth_id(user_id)
     await delete_user_from_es(user_id)
+
+def check_subscription(user: Auth) -> bool:
+    if user.subscription is None:
+        return False
+    if user.subscription.started_at.replace(tzinfo=timezone.utc) > datetime.now(timezone.utc):
+        return False
+    if user.subscription.ended_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        return False
+
+async def change_subscription(subscription: ChangeUserSubscription):
+    if not subscription.set_to:
+        await subscription_dao.delete_subscription(subscription.user_id)
+        return
+    started_at = datetime.now()
+    finished_at = started_at + SUBSCRIPTION_DURATION
+
+    current_sub = await subscription_dao.get_subscription_by_id(subscription.user_id)
+    if current_sub is None:
+        await subscription_dao.create_subscription(subscription.user_id, started_at, finished_at)
+    else:
+        await subscription_dao.update_subscription(subscription.user_id, started_at, finished_at)
+
+async def get_subscription(id: int) -> Subscription:
+    return await subscription_dao.get_subscription_by_id(id)
