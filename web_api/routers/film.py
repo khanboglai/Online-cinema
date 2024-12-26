@@ -9,7 +9,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from config import s3_client, BUCKET_NAME
 from config import templates
 from schemas.film import EditFilmForm
-from services.user import UserDependency
+from services.user import UserDependency, get_subscription
 from services.film import get_film_by_id, add_comment_to_db, get_all_comments, edit_film as edit_film_service, delete_film
 from services.interaction import add_interaction, add_time_into_interaction
 from schemas.comment import Comment, CommentRequest
@@ -121,6 +121,8 @@ async def get_edit_film(request: Request, film_id: int, user: UserDependency):
     genres = ", ".join(film.genres)
     countries = ", ".join(film.countries)
     tags = ", ".join(film.tags)
+    subscription = await get_subscription(user.id)
+
 
     return templates.TemplateResponse(
         "edit_film.html", {
@@ -131,7 +133,8 @@ async def get_edit_film(request: Request, film_id: int, user: UserDependency):
             "genres": genres,
             "countries": countries,
             "tags": tags,
-            "id": film.id
+            "id": film.id,
+            "subscription": subscription
         }
     )
 

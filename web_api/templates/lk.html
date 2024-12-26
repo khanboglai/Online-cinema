@@ -40,17 +40,17 @@
       <div class="stats-grid">
         <div class="stat-card">
           <h3>Subscription Status</h3>
-          {% if not subscription %}
+          {% if is_subscription_available == false %}
           <p class="amount">Free Plan</p>
           {% else %}
           <p class="amount">Premium Plan</p>
           {% endif %}
 
-          {% if subscription %}
+          {% if is_subscription_available == true %}
           <small>Next billing: {{ subscription.finished_at.strftime("%d.%m.%Y") }}</small>
           {% endif %}
 
-          {% if not subscription %}
+          {% if is_subscription_available == false %}
           <button class="subscription-button" onclick="changeSubscription('{{ auth.id }}', true)">Upgrade Plan</button>
           {% else %}
           <button class="cancel-subscription-button" onclick="changeSubscription('{{ auth.id }}', false)">Cancel Plan</button>

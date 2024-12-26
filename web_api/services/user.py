@@ -216,13 +216,14 @@ async def delete_user(user_id):
     await dao.delete_by_auth_id(user_id)
     await delete_user_from_es(user_id)
 
-def check_subscription(user: Auth) -> bool:
-    if user.subscription is None:
+def check_subscription(subscription: Subscription) -> bool:
+    if subscription is None:
         return False
-    if user.subscription.started_at.replace(tzinfo=timezone.utc) > datetime.now(timezone.utc):
+    if subscription.started_at.replace(tzinfo=timezone.utc) > datetime.now(timezone.utc):
         return False
-    if user.subscription.ended_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+    if subscription.finished_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
         return False
+    return True
 
 async def change_subscription(subscription: ChangeUserSubscription):
     if not subscription.set_to:

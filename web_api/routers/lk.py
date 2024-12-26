@@ -28,6 +28,9 @@ async def get_lk_html(user: UserDependency,
     number_of_recently_watched = 5
     recently_watched = await get_recently_watched(user.id, number_of_recently_watched)
     subscription = await get_subscription(user.id)
+    is_sub_available = check_subscription(subscription)
+    print("CHECK SUB: " + str(is_sub_available))
+    print("CHECK SUB: " + str(subscription.started_at))
 
     return templates.TemplateResponse(
         "lk.html",
@@ -38,6 +41,7 @@ async def get_lk_html(user: UserDependency,
             "watchtime": watchtime,
             "recently_watched": recently_watched,
             "subscription": subscription,
+            "is_sub_available": is_sub_available,
             "request": request
         }
     )
