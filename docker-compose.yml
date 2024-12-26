@@ -57,7 +57,7 @@ services:
       - "8000:8000"
     depends_on:
       - postgres
-      # - elasticsearch
+      - elasticsearch
       - rabbitmq
     environment:
       DB_USER: debug
@@ -83,27 +83,27 @@ services:
     ports:
       - "8080:8080"
 
-  # elasticsearch:
-  #   image: elasticsearch:7.17.26
-  #   container_name: cinema_elasticsearch
-  #   environment:
-  #     - discovery.type=single-node
-  #     - ES_JAVA_OPTS=-Xms512m -Xmx512m
-  #   ports:
-  #     - "9200:9200"
-  #   volumes:
-  #     - esdata:/usr/share/elasticsearch/data
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:9200"]
-  #     interval: 30s
-  #     timeout: 10s
-  #     retries: 5
-  #   restart: unless-stopped
-  #   deploy:
-  #     resources:
-  #       limits:
-  #         cpus: '0.5'
-  #         memory: 1G 
+  elasticsearch:
+    image: elasticsearch:7.17.26
+    container_name: cinema_elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 1G 
 
   storage:
     image: minio/minio:latest
