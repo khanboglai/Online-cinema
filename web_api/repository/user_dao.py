@@ -2,7 +2,7 @@
 UserDao. Dao for User.
 """
 
-from sqlalchemy import update
+from sqlalchemy import update, delete
 from sqlalchemy.future import select
 
 from repository.base_dao import BaseDao
@@ -105,4 +105,14 @@ class AuthDao(BaseDao):
             #     setattr(result, attr, value)
             result.login = user.login
             result.hashed_password = user.hashed_password
+            await session.commit()
+
+    @classmethod
+    async def delete_by_auth_id(cls, user_id: int):
+        async with async_session_maker() as session:
+            query = (
+                delete(cls.model)
+                .filter_by(id = user_id)
+            )
+            await session.execute(query)
             await session.commit()

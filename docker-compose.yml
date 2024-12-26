@@ -57,7 +57,7 @@ services:
       - "8000:8000"
     depends_on:
       - postgres
-      # - elasticsearch
+      - elasticsearch
       - rabbitmq
     environment:
       DB_USER: debug
@@ -89,6 +89,7 @@ services:
     environment:
       - discovery.type=single-node
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - xpack.security.enabled=false
     ports:
       - "9200:9200"
     volumes:
@@ -103,7 +104,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 1G
+          memory: 1G 
 
   storage:
     image: minio/minio:latest

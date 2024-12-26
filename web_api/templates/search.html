@@ -13,7 +13,7 @@
                     <div class="search-suggestions" id="suggestions">
                     </div>
                 </div>
-                <form action="/lk" method="GET">
+                <form action="/lk/" method="GET">
                     <button type="submit" class="lk-btn">Личный кабинет</button>
                 </form>
             </nav>
@@ -29,7 +29,7 @@
                     <div class="video-card" onclick="window.location='/films/{{ image['id'] }}'">
                         <div class="thumbnail">
                             <div class="thumbnail-overlay">
-                                <img src="{{ image['cover'] }}" alt="{{ image['name'] }}" style="width: 400px; height: 230px; margin: 0;">
+                                <img src="/image/{{ image['id'] }}" alt="{{ image['name'] }}" style="width: 400px; height: 230px; margin: 0;">
                                 {% if user.role == 'ROLE_ADMIN' %}
                                 <button class="edit-btn" onclick="editFilm(event, '{{ image['id'] }}')">
                                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">

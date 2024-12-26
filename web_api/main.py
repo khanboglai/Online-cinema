@@ -4,7 +4,7 @@ import asyncio
 from fastapi import FastAPI, status
 from fastapi.responses import RedirectResponse
 from starlette.staticfiles import StaticFiles
-from routers import auth, lk, home, upload_film, film, search
+from routers import auth, lk, home, upload_film, film, search, manage
 from services.user import UserDependency
 from config import s3_client, BUCKET_NAME
 
@@ -20,6 +20,7 @@ app.include_router(home.router)
 app.include_router(upload_film.router)
 app.include_router(film.router)
 app.include_router(search.router)
+app.include_router(manage.router)
 
 app.mount('/static', StaticFiles(directory='static'), 'static')
 
@@ -41,4 +42,9 @@ async def user_auth(user: UserDependency):
     """ Redirecting by cookies """
     if user is None:
         return RedirectResponse(url="/login")
+    return RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
+
+# обработчик для несуществующего маршрута
+@app.get("/{full_path:path}")
+async def catch_all(full_path: str):
     return RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)

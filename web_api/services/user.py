@@ -2,16 +2,18 @@
 from datetime import timedelta, datetime, timezone
 from math import floor
 from typing import Annotated
+from sqlalchemy.exc import IntegrityError
 
 from fastapi import Form, Request, Depends
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from config import settings
-from exceptions.exceptions import UserIsExistError
+from exceptions.exceptions import UserIsExistError, UserEmailExistError
 from repository.interaction_dao import InteractionDao
 from repository.user_dao import ProfileDao, AuthDao
 from schemas.user import CreateUserRequest, EditUserRequest
 from models.models import Auth, Profile, Interaction, Film
+from services.search import delete_user_from_es, add_user_to_es, update_user_in_es
 
 # !!! SECRET !!!
 SECRET_KEY = settings.SECRET_KEY
@@ -26,15 +28,21 @@ interaction_dao = InteractionDao()
 async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
     """Foo for creating new user"""
     username = create_user_request.username
-    existing_user = await dao.find_by_username(username)
-    if existing_user:
-        raise UserIsExistError()  # Update in nearest future
-    await dao.add(
-        login=username,
-        hashed_password=bcrypt_context.hash(create_user_request.password),
-        role='ROLE_USER',
-    )
+    # existing_user = await dao.find_by_username(username)
+    # if existing_user:
+    #     raise UserIsExistError()  # Update in nearest future
+    try:
+        await dao.add(
+            login=username,
+            hashed_password=bcrypt_context.hash(create_user_request.password),
+            role='ROLE_USER',
+        )
+    except IntegrityError:
+        raise UserIsExistError()
+    
     user = await dao.find_by_username(username)
+    # Добавление записи о юзере в эластик
+    await add_user_to_es(user.id, user.login)
     # Создаем новый профиль в таблице profile
     await profile_dao.add(auth_id=user.id)
     access_token = create_access_token(user.login,
@@ -131,8 +139,10 @@ async def get_general_watchtime_by_user_id(id: int) -> int:
     interactions = await interaction_dao.get_all_interactions_by_user(id)
 
     watchtime = 0
+
     for interaction in interactions:
-        watchtime += interaction.watchtime
+        if interaction is not None:
+            watchtime += interaction.watchtime
 
     return watchtime
 
@@ -161,17 +171,6 @@ async def get_recently_watched(id: int, n: int) -> list[(Interaction, Film)]:
     return recently_watched
 
 
-async def check_username_available(username: str) -> bool:
-    '''
-    Check if the username is available.
-    :param username:
-    :return:
-    '''
-    user = await dao.find_by_username(username)
-    if user is None:
-        return True
-    return False
-
 async def edit_user(user: UserDependency, form: EditUserRequest) -> Auth:
     '''
     Edit user info
@@ -182,8 +181,9 @@ async def edit_user(user: UserDependency, form: EditUserRequest) -> Auth:
 
     # Изменяем данные пользователя в таблице profile и auth
     profile = await profile_dao.find_by_auth_id(user.id)
-    if form.login and await check_username_available(form.login):
+    if form.login:
         user.login = form.login
+        await update_user_in_es(form.login, user.id)
     if form.new_password:
         user.hashed_password = bcrypt_context.hash(form.new_password)
     if form.name:
@@ -197,7 +197,18 @@ async def edit_user(user: UserDependency, form: EditUserRequest) -> Auth:
     if form.email:
         profile.email = form.email
 
-    await profile_dao.update(profile)
-    await dao.update(user)
+    try:
+        await dao.update(user)
+    except IntegrityError:
+        raise UserIsExistError()
+    
+    try:
+        await profile_dao.update(profile)
+    except IntegrityError:
+        raise UserEmailExistError()
 
     return user
+
+async def delete_user(user_id):
+    await dao.delete_by_auth_id(user_id)
+    await delete_user_from_es(user_id)

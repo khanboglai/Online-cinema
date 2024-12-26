@@ -3,11 +3,28 @@ function editProfile() {
 }
 
 function goLK() {
-  window.location.replace('/lk');
+  window.location.replace('/lk/');
 }
 
 function logout() {
   window.location.replace('/logout')
+}
+
+async function handleLogin(event) {
+  event.preventDefault(); // Предотвращаем стандартное поведение формы
+
+  const formData = new FormData(document.getElementById('profileForm'));
+  const response = await fetch('/lk/edit', {
+      method: 'POST',
+      body: formData
+  });
+  if (!response.ok) {
+      const result = await response.json();
+      document.getElementById('errorMessage').textContent = result.error;
+      document.getElementById('errorMessage').style.display = 'block';
+  } else {
+      window.location.replace("/lk/");
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
