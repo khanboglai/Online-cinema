@@ -69,3 +69,8 @@ document.addEventListener('click', (event) => {
         suggestionsBox.style.display = 'none';
     }
 });
+
+function editFilm(event, filmId) {
+    event.stopPropagation(); // Останавливает всплытие события
+    window.location.href = `/films/edit/${filmId}`; // Перенаправляет на страницу редактирования
+}
