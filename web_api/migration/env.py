@@ -10,7 +10,7 @@ from alembic import context
 
 from repository.database import Base, URL_DATABASE
 
-from models.models import Auth, Profile, Film, Interaction
+from models.models import Auth, Profile, Film, Interaction, Subscription
 
 
 # this is the Alembic Config object, which provides
