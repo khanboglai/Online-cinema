@@ -5,6 +5,7 @@ from starlette.templating import Jinja2Templates
 from boto3.exceptions import Boto3Error
 
 from services.user import UserDependency
+from config import templates
 from services.search import get_search_results
 from services.film import get_film_by_id
 from config import s3_client, BUCKET_NAME
@@ -15,8 +16,6 @@ router = APIRouter(
     prefix='/search',
     tags=['Search']
 )
-
-templates = Jinja2Templates(directory="templates")
 
 
 @router.get("/{search_query}/page={page}")

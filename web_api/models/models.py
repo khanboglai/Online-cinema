@@ -13,13 +13,13 @@ class Auth(Base):
     role = Column(String)
 
     # Связь 1 к 1 с таблицей Profile
-    profile = relationship("Profile", back_populates="auth", uselist=False)
+    profile = relationship("Profile", back_populates="auth", uselist=False, cascade="all, delete-orphan")
 
 class Profile(Base):
     """Definition of table Profile"""
     __tablename__ = 'profile'
     id = Column(Integer, primary_key=True)
-    auth_id = Column(Integer, ForeignKey('auth.id'))
+    auth_id = Column(Integer, ForeignKey('auth.id', ondelete='CASCADE'))
     name = Column(String)
     surname = Column(String)
     birth_date = Column(Date)
@@ -29,14 +29,14 @@ class Profile(Base):
     # Связь 1 к 1 с таблицей Auth
     auth = relationship("Auth", back_populates="profile")
 
-    # Связь 1 к 1 с таблицей Recommend
-    recommend = relationship("Recommend", back_populates="profile")
+    # Связь 1 ко многим с таблицей Recommend
+    recommend = relationship("Recommend", back_populates="profile", cascade="all, delete-orphan")
 
     # Связь 1 ко многим с таблицей Interaction
-    interaction = relationship("Interaction", back_populates="profile")
+    interaction = relationship("Interaction", back_populates="profile", cascade="all, delete-orphan")
 
     # Связь 1 ко многим с таблицей Reply
-    reply = relationship("Reply", back_populates="profile")
+    reply = relationship("Reply", back_populates="profile", cascade="all, delete-orphan")
 
 class Film(Base):
     __tablename__ = 'film'
@@ -65,7 +65,7 @@ class Film(Base):
 class Interaction(Base):
     __tablename__ = 'interaction'
     id = Column(Integer, primary_key=True)
-    profile_id = Column(Integer, ForeignKey('profile.id'))
+    profile_id = Column(Integer, ForeignKey('profile.id', ondelete='CASCADE'))
     film_id = Column(Integer, ForeignKey('film.id', ondelete='CASCADE'))
     last_interaction = Column(DateTime)
     count_interaction = Column(Integer)
@@ -78,7 +78,7 @@ class Interaction(Base):
 class Reply(Base):
     __tablename__ = 'reply'
     id = Column(Integer, primary_key=True)
-    profile_id = Column(Integer, ForeignKey('profile.id'))
+    profile_id = Column(Integer, ForeignKey('profile.id', ondelete='CASCADE'))
     film_id = Column(Integer, ForeignKey('film.id', ondelete='CASCADE'))
     rating = Column(Float)
     text = Column(String)
@@ -90,7 +90,7 @@ class Reply(Base):
 class Recommend(Base):
     __tablename__ = 'recommend'
     id = Column(Integer, primary_key=True)
-    profile_id = Column(Integer, ForeignKey('profile.id'))
+    profile_id = Column(Integer, ForeignKey('profile.id', ondelete='CASCADE'))
     film_id = Column(Integer, ForeignKey('film.id', ondelete='CASCADE'))
     rank = Column(Integer)
 

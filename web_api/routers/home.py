@@ -6,19 +6,16 @@ from starlette.templating import Jinja2Templates
 from boto3.exceptions import Boto3Error
 
 from logs import logger
+from config import templates
 from services.user import UserDependency
 from services.film import get_newest_films, get_recommend_films, get_film_by_id
 from config import s3_client, BUCKET_NAME
 
 
-import httpx
-
 router = APIRouter(
     prefix='',
     tags=['Homepage']
 )
-
-templates = Jinja2Templates(directory="templates")
 
 @router.get("/home")
 async def get_home_html(user: UserDependency, request: Request):

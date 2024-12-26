@@ -14,6 +14,7 @@ from services.user import UserDependency, edit_user, create_access_token, get_bi
     get_name_by_user_id, get_surname_by_user_id, get_email_by_user_id, get_profile_by_user_id, get_age, \
     get_general_watchtime_by_user_id, get_recently_watched
 
+
 router = APIRouter(prefix="/lk", tags=["Personal Account"])
 
 @router.get("/")

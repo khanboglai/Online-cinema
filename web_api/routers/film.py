@@ -7,15 +7,15 @@ from starlette.templating import Jinja2Templates
 from sqlalchemy.exc import SQLAlchemyError
 
 from config import s3_client, BUCKET_NAME
+from config import templates
 from services.user import UserDependency
 from services.film import get_film_by_id, add_comment_to_db, get_all_comments, delete_film
 from services.interaction import add_interaction, add_time_into_interaction
 from schemas.comment import Comment, CommentRequest
 from logs import logger
 
-router = APIRouter(prefix='/films', tags=['Filmpage'])
 
-templates = Jinja2Templates(directory="templates")
+router = APIRouter(prefix='/films', tags=['Filmpage'])
 
     
 @router.get("/{film_id}")
