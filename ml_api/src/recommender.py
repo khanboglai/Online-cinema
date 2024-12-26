@@ -1,3 +1,4 @@
+import random
 import pandas as pd
 from catboost import CatBoostClassifier
 from implicit.nearest_neighbours import BM25Recommender
@@ -196,4 +197,12 @@ class Recommender(RecommenderABC):
             filter_viewed=True
         )
 
-        return candidates.reset_index(drop=True)
+        # make default recos for "cold" users
+        default_recs = pd.DataFrame({
+            "user_id": [0 for _ in range(self._n_recs)],
+            "item_id": [random.sample(self._n_recs)],
+            "rank": [i for i in range(1, 11, 1)]
+        })
+
+        recos = pd.concat([candidates, warm_recos, default_recs])
+        return recos
