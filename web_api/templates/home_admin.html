@@ -14,10 +14,13 @@
                     </div>
                 </div>
                 <div class="button-container">
-                    <form action="/upload" method="GET">
+                    <form action="/manage/" method="GET">
+                        <button type="submit" class="lk-btn">Управление пользователями</button>
+                    </form>
+                    <form action="/upload/" method="GET">
                         <button type="submit" class="lk-btn">Загрузить фильм</button>
                     </form>
-                    <form action="/lk" method="GET">
+                    <form action="/lk/" method="GET">
                         <button type="submit" class="lk-btn">Личный кабинет</button>
                     </form>
                 </div>
@@ -34,7 +37,13 @@
                 <div class="video-card" onclick="window.location='/films/{{ image['id'] }}'">
                     <div class="thumbnail">
                         <div class="thumbnail-overlay">
-                            <img src="{{ image['cover'] }}" alt="{{ image['name'] }}" style="width: 400px; height: 230px; margin: 0;">
+                            <img src="/image/{{ image['id'] }}" alt="{{ image['name'] }}" style="width: 400px; height: 230px; margin: 0;">
+                            <button class="edit-btn" onclick="editFilm(event, '{{ image['id'] }}')">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+<!--                                    <circle cx="12" cy="12" r="10"/>-->
+                                </svg>
+                            </button>
                         </div>
                     </div>
                     <div class="video-info">

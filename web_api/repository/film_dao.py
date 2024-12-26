@@ -5,7 +5,9 @@ FilmDao. Dao for Film.
 from models.models import Film
 from repository.base_dao import BaseDao
 from repository.database import async_session_maker
-from sqlalchemy import select
+from sqlalchemy import select, delete, update
+
+from schemas.film import EditFilmForm
 
 
 class FilmDao(BaseDao):
@@ -50,4 +52,38 @@ class FilmDao(BaseDao):
             result = (await session.execute(query)).scalars().all()
             return result
 
+    @classmethod
+    async def update_film(cls, film: EditFilmForm) -> None:
+        directors_array = [item.strip() for item in film.director.split(',')]
+        countries_array = [item.strip() for item in film.country.split(',')]
+        actors_array = [item.strip() for item in film.actor.split(',')]
+        genres_array = [item.strip() for item in film.genre.split(',')]
+        tags_array = [item.strip() for item in film.tags.split(',')]
+        async with async_session_maker() as session:
+            query = (
+                update(Film).where(Film.id == film.id).values(
+                    name = film.film_name,
+                    description = film.description,
+                    directors = directors_array,
+                    actors = actors_array,
+                    genres = genres_array,
+                    year = film.year,
+                    countries = countries_array,
+                    studios = film.studios,
+                    tags = tags_array,
+                    age_rating = film.age_rating,
+                )
+            )
 
+            await session.execute(query)
+            await session.commit()
+
+    @classmethod
+    async def delete_film_by_id(cls, film_id: int):
+        async with async_session_maker() as session:
+            query = (
+                delete(cls.model)
+                .filter_by(id = film_id)
+            )
+            await session.execute(query)
+            await session.commit()

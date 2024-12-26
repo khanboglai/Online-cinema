@@ -10,10 +10,9 @@ async function handleSubmit(event) {
   const studios = document.getElementById('studios').value;
   const tags = document.getElementById('tags').value;
   const director = document.getElementById('director').value;
-  const movieFile = document.getElementById('filmFile').files[0];
-  const movieCover = document.getElementById('filmImage').files[0];
 
   const selectedRating = document.querySelector('input[name="age_rating"]:checked');
+
   const rating = selectedRating ? selectedRating.value : null;
 
   if (!rating) {
@@ -21,7 +20,7 @@ async function handleSubmit(event) {
       return;
   }
 
-  if (!movieName || !year || !country || !description || !actor || !genre || !studios || !tags || !movieFile || !director || !movieCover) {
+  if (!movieName || !year || !country || !description || !actor || !genre || !studios || !tags || !director) {
       alert('Please fill in all required fields');
       return;
   }
@@ -42,13 +41,12 @@ async function handleSubmit(event) {
   formData.append('genre', genre);
   formData.append('studios', studios);
   formData.append('tags', tags);
-  formData.append('file', movieFile);
-  formData.append('cover', movieCover);
+  formData.append('id', filmId)
 
   try {
-      const response = await fetch('/upload/', {
+      const response = await fetch('http://localhost:8000/films/edit', {
           method: 'POST',
-          body: formData,
+          body: formData
       });
 
       if (!response.ok) {
@@ -60,7 +58,7 @@ async function handleSubmit(event) {
 
       const result = response.ok;
       console.log('Upload successful:', result);
-      window.location.href = "/home";
+      window.location.href = "http://localhost:8000/home";
   } catch (error) {
       console.error('Network Error:', error);
       alert('An error occurred. Please check your internet connection and try again.');
@@ -77,7 +75,7 @@ function goBack() {
 
 document.addEventListener('DOMContentLoaded', () => {
   const yearInput = document.getElementById('year');
-  
+
   yearInput.addEventListener('input', () => {
     const currentYear = new Date().getFullYear();
     if (yearInput.value > currentYear) {
@@ -90,43 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
     input.addEventListener('focus', () => {
       input.style.borderColor = 'var(--secondary)';
     });
-    
+
     input.addEventListener('blur', () => {
       if (!input.value) {
         input.style.borderColor = '#ddd';
       }
     });
   });
-
-  const fileInput = document.getElementById('filmFile');
-  const fileName = document.querySelector('.file-name');
-  
-  fileInput.addEventListener('change', function() {
-    if (this.files && this.files[0]) {
-      fileName.textContent = this.files[0].name;
-    } else {
-      fileName.textContent = 'Choose a file...';
-    }
-  });
-
-  const coverInput = document.getElementById('filmImage');
-  const coverName = document.querySelector('.img-name');
-
-  coverInput.addEventListener('change', function() {
-    if (this.files && this.files[0])
-    {
-      coverName.textContent = this.files[0].name;
-    } else
-    {
-      coverName.textContent = 'Choose a file...';
-    }
-  });
-});
-
-document.getElementById('filmFile').addEventListener('change', function(event) {
-  const file = event.target.files[0];
-  if (file && file.type !== 'video/mp4') {
-      alert('Пожалуйста, загрузите файл в формате MP4.');
-      event.target.value = '';
-  }
 });

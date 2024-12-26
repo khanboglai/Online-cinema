@@ -18,7 +18,7 @@ router = APIRouter(prefix='', tags=['auth'])
 async def get_login_html(user: UserDependency, request: Request):
     """Returns template for login page"""
     if user is None:
-        return templates.TemplateResponse("login.html", {"request": request})
+        return templates.TemplateResponse({"request": request}, "login.html")
     return RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
 
 
@@ -26,7 +26,7 @@ async def get_login_html(user: UserDependency, request: Request):
 async def get_register_html(user: UserDependency, request: Request):
     """Returns template for register page"""
     if user is None:
-        return templates.TemplateResponse("register.html", {"request": request})
+        return templates.TemplateResponse({"request": request}, "register.html")
     return RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
 
 
@@ -38,7 +38,7 @@ async def create_user(response: Response,
         access_token = await register_user(create_user_request)
     except UserIsExistError as e:
         logger.error(e)
-        return JSONResponse(status_code=401, content={"error": "User with the same login already exists!"})
+        return JSONResponse(status_code=401, content={"error": e.message})
 
     response = RedirectResponse(url="/home", status_code=status.HTTP_302_FOUND)
     response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))

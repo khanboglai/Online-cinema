@@ -1,0 +1,22 @@
+<html><head><base href="." />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Users manage</title>
+    <link rel="stylesheet" type="text/css" href="/static/css/manage.css">
+    </head>
+    <body>
+        <header>
+            <nav>
+                <a href="/home" class="logo" style="text-decoration: none;">ChocoPy</a>
+            </nav>
+        </header>
+        <h1>Delete users</h1>
+        <div class="search-container">
+            <input type="text" class="search-bar" name="query" placeholder="Search users..." oninput="handleInput(event)">
+            <div class="search-suggestions" id="suggestions">
+            </div>
+        </div>
+        
+        <script src="/static/js/manage.js"></script>
+    </body>
+    </html>
