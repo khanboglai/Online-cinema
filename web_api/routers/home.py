@@ -1,8 +1,7 @@
+""" Routers for home page """
 from collections import defaultdict
-from typing import Annotated
-from fastapi import APIRouter, Request, Depends
+from fastapi import APIRouter, Request
 from fastapi.responses import RedirectResponse, StreamingResponse, FileResponse
-from starlette.templating import Jinja2Templates
 from boto3.exceptions import Boto3Error
 
 from logs import logger
@@ -27,12 +26,10 @@ async def get_home_html(user: UserDependency, request: Request):
         recs = await get_recommend_films(user.id)
         if recs is None:
             recs = await get_recommended_films_for_new_user()
-        # здесь надо будет проверить этот список и в случае его пустоты отдать рекомендации профиля с id=0 
         if recs is not None:
             for rec in recs:
                 film = await get_film_by_id(rec.film_id)
                 images_by_tag["Recommended"].append({
-                                                    # "cover": cover_url,
                                                     "name": film.name,
                                                     "id": film.id,
                                                     })
@@ -41,11 +38,9 @@ async def get_home_html(user: UserDependency, request: Request):
         films = await get_newest_films()
         for film in films:
             images_by_tag["New"].append({
-                                        #  "cover": cover_url,
-                                            "name": film.name,
-                                            "id": film.id,
-                                            })
-        # images_by_tag = None
+                                        "name": film.name,
+                                        "id": film.id,
+                                        })
         if user.role == 'ROLE_ADMIN':
             return templates.TemplateResponse("home_admin.html", {"request": request,
                                                         "films": images_by_tag})
@@ -55,6 +50,7 @@ async def get_home_html(user: UserDependency, request: Request):
         
 @router.get("/image/{film_id}")
 async def get_image_by_id(request: Request, film_id: int):
+    """ Function for getting covers from s3 """
     cover_key = f"{film_id}/image.png"
     try:
         response = s3_client.get_object(Bucket=BUCKET_NAME, Key=cover_key)

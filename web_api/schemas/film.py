@@ -1,9 +1,10 @@
-""" Schema of film """
-
+""" Schemas of film """
 from pydantic import BaseModel
-from fastapi import UploadFile, File, Form
+from fastapi import UploadFile, File
+
 
 class SaveFilmRequest(BaseModel):
+    """ Schema for save film request """
     film_name: str
     age_rating: int
     director: str
@@ -17,7 +18,9 @@ class SaveFilmRequest(BaseModel):
     file: UploadFile
     cover: UploadFile
 
+
 class UploadFilmForm(BaseModel):
+    """ Schema for uploading film from frontend """
     film_name: str
     age_rating: int
     director: str
@@ -31,7 +34,9 @@ class UploadFilmForm(BaseModel):
     file: UploadFile = File(...)
     cover: UploadFile = File(...)
 
+
 class EditFilmForm(BaseModel):
+    """ Schema for edit film data form """
     id: int
     film_name: str
     age_rating: int

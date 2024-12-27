@@ -1,17 +1,13 @@
 """Models of users/users requests"""
 from datetime import date
-from enum import Enum
+from pydantic import BaseModel, Field, field_validator
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey
-from pydantic import BaseModel, Field, field_validator, model_validator
-from repository.database import Base, engine
-from fastapi import Form
-from typing import Annotated, Optional
 
 class CreateUserRequest(BaseModel):
     """Register and login requset validation model"""
     username: str
     password: str
+
 
 class EditUserRequest(BaseModel):
     """Edit requset validation model"""
@@ -30,6 +26,7 @@ class EditUserRequest(BaseModel):
         if d > date.today():
             raise ValueError('Birth date cannot be in the future')
         return d
+    
 
 class ChangeUserSubscription(BaseModel):
     """Change user subscription plan"""

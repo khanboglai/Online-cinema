@@ -1,18 +1,18 @@
 """
 UserDao. Dao for User.
 """
-
-from sqlalchemy import update, delete
+from sqlalchemy import delete
 from sqlalchemy.future import select
 
 from repository.base_dao import BaseDao
-
 from models.models import Auth, Profile, Interaction, Film
 from repository.database import async_session_maker
 
+
 class ProfileDao(BaseDao):
-    """Обновление данных для лк"""
+    """ Data Access Object class for table profile """
     model = Profile
+
 
     @classmethod
     async def find_by_auth_id(cls, id: int):
@@ -39,14 +39,13 @@ class ProfileDao(BaseDao):
             )
 
             result = (await session.execute(query)).scalar_one()
-            # for attr, value in data_to_update.items():
-            #     setattr(result, attr, value)
             result.name = user.name
             result.surname = user.surname
             result.birth_date = user.birth_date
             result.sex = user.sex
             result.email = user.email
             await session.commit()
+
 
     @classmethod
     async def get_recently_watched(cls, id: int, n: int) -> list[(Interaction, Film)]:
@@ -69,8 +68,9 @@ class ProfileDao(BaseDao):
 
 
 class AuthDao(BaseDao):
-    """Аутентификация для юзера при логине"""
+    """ Data Access Object class for table profile """
     model = Auth
+
 
     @classmethod
     async def find_by_username(cls, username: str) -> Auth:
@@ -83,6 +83,7 @@ class AuthDao(BaseDao):
             query = select(cls.model).filter_by(login=username)
             result = await session.execute(query)
             return result.scalar_one_or_none()
+        
 
     @classmethod
     async def update(cls, user: Auth):
@@ -107,8 +108,10 @@ class AuthDao(BaseDao):
             result.hashed_password = user.hashed_password
             await session.commit()
 
+
     @classmethod
     async def delete_by_auth_id(cls, user_id: int):
+        """ Method for delete user """
         async with async_session_maker() as session:
             query = (
                 delete(cls.model)

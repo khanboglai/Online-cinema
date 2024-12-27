@@ -1,11 +1,11 @@
-from datetime import datetime
-
+""" Database orm models """
 from sqlalchemy import Column, String, Integer, Date, ForeignKey, ARRAY, Float, DateTime
 from sqlalchemy.orm import relationship
 
 from repository.database import Base
 
 class Auth(Base):
+    """ Defenition of table auth """
     __tablename__ = 'auth'
     id = Column(Integer, primary_key=True)
     login = Column(String, unique=True)
@@ -16,8 +16,9 @@ class Auth(Base):
     profile = relationship("Profile", back_populates="auth", uselist=False, cascade="all, delete-orphan")
     subscription = relationship("Subscription", back_populates="auth")
 
+
 class Profile(Base):
-    """Definition of table Profile"""
+    """ Definition of table profile """
     __tablename__ = 'profile'
     id = Column(Integer, primary_key=True)
     auth_id = Column(Integer, ForeignKey('auth.id', ondelete='CASCADE'))
@@ -39,7 +40,9 @@ class Profile(Base):
     # Связь 1 ко многим с таблицей Reply
     reply = relationship("Reply", back_populates="profile", cascade="all, delete-orphan")
 
+
 class Film(Base):
+    """ Definition of table film """
     __tablename__ = 'film'
     id = Column(Integer, primary_key=True)
     name = Column(String)
@@ -63,7 +66,9 @@ class Film(Base):
     # Связь 1 ко многим с таблицей Recommend
     recommend = relationship("Recommend", back_populates="film", cascade="all, delete-orphan")
 
+
 class Interaction(Base):
+    """ Defenition of table interaction """
     __tablename__ = 'interaction'
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profile.id', ondelete='CASCADE'))
@@ -76,7 +81,9 @@ class Interaction(Base):
 
     film = relationship("Film", back_populates="interaction")
 
+
 class Reply(Base):
+    """ Defenition of table reply """
     __tablename__ = 'reply'
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profile.id', ondelete='CASCADE'))
@@ -88,7 +95,9 @@ class Reply(Base):
 
     film = relationship("Film", back_populates="reply")
 
+
 class Recommend(Base):
+    """ Definition of table recommend """
     __tablename__ = 'recommend'
     id = Column(Integer, primary_key=True)
     profile_id = Column(Integer, ForeignKey('profile.id', ondelete='CASCADE'))
@@ -99,7 +108,9 @@ class Recommend(Base):
 
     profile = relationship("Profile", back_populates="recommend")
 
+
 class Subscription(Base):
+    """ Defenition of table subscription """
     __tablename__ = 'subscription'
     id = Column(Integer, ForeignKey('auth.id', ondelete='CASCADE'), primary_key=True)
     started_at = Column(DateTime)

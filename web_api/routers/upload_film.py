@@ -1,7 +1,5 @@
-from urllib import request
-
-from fastapi import APIRouter, HTTPException, UploadFile, File, Body, Form
-from fastapi.params import Depends
+""" Routers for film uploading """
+from fastapi import APIRouter, HTTPException, Form
 from starlette import status
 from starlette.requests import Request
 from starlette.responses import Response, RedirectResponse
@@ -13,6 +11,7 @@ from schemas.film import SaveFilmRequest, UploadFilmForm
 from logs import logger
 
 
+""" Router initialize """
 router = APIRouter(prefix="/upload")
 
 

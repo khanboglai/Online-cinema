@@ -1,6 +1,6 @@
 """Routers with login, register and authentification"""
 from datetime import timedelta, datetime
-from fastapi import APIRouter, HTTPException, Form, Response, Request
+from fastapi import APIRouter, Form, Response, Request
 from fastapi.responses import RedirectResponse, JSONResponse
 from starlette import status
 
@@ -11,6 +11,7 @@ from services.user import register_user, authenticate_user, create_access_token,
 from logs import logger
 
 
+""" Router initialize """
 router = APIRouter(prefix='', tags=['auth'])
 
 
@@ -39,10 +40,6 @@ async def create_user(response: Response,
     except UserIsExistError as e:
         logger.error(e)
         return JSONResponse(status_code=401, content={"error": e.message})
-
-    # response = RedirectResponse(url="/login", status_code=status.HTTP_302_FOUND)
-    # response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
-    # return response
 
 
 @router.post("/login")

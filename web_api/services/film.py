@@ -1,7 +1,8 @@
-""" Service layer for films. """
-
+""" Service layer for films """
 import logging
 from boto3.exceptions import Boto3Error
+from elasticsearch import ConnectionError
+
 from config import s3_client, BUCKET_NAME
 from repository.film_dao import FilmDao
 from repository.user_dao import ProfileDao
@@ -11,16 +12,15 @@ from services.search import add_document, update_document, delete_document
 from services.user import get_age
 from schemas.film import SaveFilmRequest, EditFilmForm
 from schemas.comment import CommentRequest
-from elasticsearch import ConnectionError
-from boto3.exceptions import Boto3Error
 
 
+""" Logger initializing """
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
+""" Data access object for tables film, profile, comment and recommend """
 dao = FilmDao()
-
 user_dao = ProfileDao()
 comment_dao = CommentDao()
 recommend_dao = RecommendDao()
@@ -96,15 +96,20 @@ async def save_film(film_request: SaveFilmRequest):
 
 
 async def get_film_by_id(film_id: int):
+    """ Film by id getter """
     film = await dao.find_by_id(film_id)
     # Пока что не может быть, чтобы не было такого фильма, так как он берется из хранилки эластика
     return film
 
+
 async def get_newest_films():
+    """ Newest films getter """
     films = await dao.find_newest_films()
     return films
 
+
 async def get_recommend_films(user_id: int):
+    """ Recommends getter for user with defined recommended films """
     profile = await user_dao.find_by_auth_id(user_id)
 
     recs = await recommend_dao.get_recommend_by_profile_id(profile.id)
@@ -112,13 +117,17 @@ async def get_recommend_films(user_id: int):
         return None
     return recs
 
+
 async def get_recommended_films_for_new_user(profile_id: int = 0):
+    """ Recommends getter for user with undefined recommended films """
     recs = await recommend_dao.get_recommend_by_profile_id(profile_id)
     if not recs:
         return None
     return recs
 
+
 async def add_comment_to_db(comment: CommentRequest):
+    """ Function for adding comment into postgres """
     profile = await user_dao.find_by_auth_id(comment.user_id)
 
     await comment_dao.add(
@@ -138,15 +147,21 @@ async def add_comment_to_db(comment: CommentRequest):
 
     logger.info("Comment was added successfully!")
 
+
 async def get_all_comments(film_id: int):
+    """ All comments for rilm getter """
     comments = await comment_dao.get_all_comments(film_id)
     return comments
 
+
 async def edit_film(film: EditFilmForm) -> None:
+    """ Function for updating film info in postgres and elastic """
     await dao.update_film(film)
     await update_document(film.film_name, film.id)
 
+
 async def delete_film(film_id: int):
+    """ Function for deleting film from postgres, elastic and s3 """
     await dao.delete_film_by_id(film_id)
     logger.info(f"Deleted from pg")
     await delete_document(film_id)
@@ -155,7 +170,9 @@ async def delete_film(film_id: int):
     s3_client.delete_object(Bucket=BUCKET_NAME, Key=f"{film_id}/video.mp4")
     logger.info(f"Deleted film with id: {film_id}")
 
+
 async def check_age(user_id: int, film_id: int):
+    """ Function for checking access to film by age """
     profile = await user_dao.find_by_auth_id(user_id)
     film = await dao.find_by_id(film_id)
     if profile.birth_date is None:

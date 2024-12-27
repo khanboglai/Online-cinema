@@ -1,39 +1,42 @@
-"""Services with login, register and authentification"""
+""" Functions for login, register, authentification and other trash, connected with user """
 from datetime import timedelta, datetime, timezone
 from math import floor
 from typing import Annotated
 from sqlalchemy.exc import IntegrityError
-
 from fastapi import Form, Request, Depends
 from passlib.context import CryptContext
 from jose import jwt, JWTError
+
 from config import settings
 from exceptions.exceptions import UserIsExistError, UserEmailExistError
 from repository.interaction_dao import InteractionDao
 from repository.subscription_dao import SubscriptionDao
 from repository.user_dao import ProfileDao, AuthDao
 from schemas.user import CreateUserRequest, EditUserRequest, ChangeUserSubscription
-from models.models import Auth, Profile, Interaction, Film, Subscription
+from models.models import Auth, Interaction, Film, Subscription
 from services.search import delete_user_from_es, add_user_to_es, update_user_in_es
 
-# !!! SECRET !!!
+
+""" Sensible params """
 SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = settings.ALGORITHM
 SUBSCRIPTION_DURATION = timedelta(days=30)
 
+
+""" Passwords encrypter """
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
+
+""" Data access objects for tables auth, profile, interaction and subscription """
 dao = AuthDao()
 profile_dao = ProfileDao()
 interaction_dao = InteractionDao()
 subscription_dao = SubscriptionDao()
 
+
 async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
-    """Foo for creating new user"""
+    """ Foo for creating new user """
     username = create_user_request.username
-    # existing_user = await dao.find_by_username(username)
-    # if existing_user:
-    #     raise UserIsExistError()  # Update in nearest future
     try:
         await dao.add(
             login=username,
@@ -48,17 +51,11 @@ async def register_user(create_user_request: CreateUserRequest = Form()) -> str:
     await add_user_to_es(user.id, user.login)
     # Создаем новый профиль в таблице profile
     await profile_dao.add(auth_id=user.id)
-    # access_token = create_access_token(user.login,
-    #                                    user.id)
-
-    # return access_token
-
-# async def get_username_from_auth()
+    
 
 async def authenticate_user(username: str, password: str) -> Auth | None:
-    """Auth user with his hashed password"""
+    """ Auth user with his hashed password """
     user = await dao.find_by_username(username)
-    # if not user or user.id == 0:
     if not user:
         return None
     if not bcrypt_context.verify(password, user.hashed_password):
@@ -67,14 +64,15 @@ async def authenticate_user(username: str, password: str) -> Auth | None:
 
 
 def create_access_token(username: str, user_id: str):
-    """Creation of JWT token"""
+    """ Creation of JWT token """
     encode = {'sub': username, 'id': user_id}
     expires = datetime.now() + timedelta(hours=1)
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
+
 async def get_current_user(request: Request) -> Auth | None:
-    """Getting user info by JWT token"""
+    """ Getting user info by JWT token """
     token = request.cookies.get('access_token')
     if token is None:
         return None
@@ -86,7 +84,10 @@ async def get_current_user(request: Request) -> Auth | None:
     except JWTError as e:
         return None
 
+
+""" Dependency for recognizing user by his cookie """
 UserDependency = Annotated[Auth, Depends(get_current_user)]
+
 
 def get_age(birth_date: datetime | None) -> int | None:
     '''
@@ -106,39 +107,51 @@ def get_age(birth_date: datetime | None) -> int | None:
             )
     )
 
+
 async def get_birth_date_by_user_id(user: UserDependency):
+    """ User bitrth date getter """
     # Находим данные юзера в таблице profile
     profile = await profile_dao.find_by_auth_id(user.id)
     if profile.birth_date:
         return profile.birth_date
     return None
 
+
 async def get_name_by_user_id(user: UserDependency):
+    """ Name getter """
     # Находим данные юзера в таблице profile
     profile = await profile_dao.find_by_auth_id(user.id)
     if profile.name:
         return profile.name
     return None
 
+
 async def get_surname_by_user_id(user: UserDependency):
+    """ Surname getter """
     # Находим данные юзера в таблице profile
     profile = await profile_dao.find_by_auth_id(user.id)
     if profile.surname:
         return profile.surname
     return None
 
+
 async def get_email_by_user_id(user: UserDependency):
+    """ Email getter """
     # Находим данные юзера в таблице profile
     profile = await profile_dao.find_by_auth_id(user.id)
     if profile.email:
         return profile.email
     return None
 
+
 async def get_profile_by_user_id(id: int):
+    """ Profile getter """
     # Получаем весь Profile в таблице profile
     return await profile_dao.find_by_auth_id(id)
 
+
 async def get_general_watchtime_by_user_id(id: int) -> int:
+    """ Summary wathctime of user getter """
     # Получаем общее количество просмотренных часов
     interactions = await interaction_dao.get_all_interactions_by_user(id)
 
@@ -150,7 +163,9 @@ async def get_general_watchtime_by_user_id(id: int) -> int:
 
     return watchtime
 
+
 async def get_recently_watched(id: int, n: int) -> list[(Interaction, Film)]:
+    """ Recent watched films or user getter """
     recently_watched = await profile_dao.get_recently_watched(id, n)
 
     for (interaction, film) in recently_watched:
@@ -214,11 +229,15 @@ async def edit_user(user: UserDependency, form: EditUserRequest) -> Auth:
 
     return user
 
+
 async def delete_user(user_id):
+    """ Delete user from pd and es func """
     await dao.delete_by_auth_id(user_id)
     await delete_user_from_es(user_id)
 
+
 def check_subscription(subscription: Subscription) -> bool:
+    """ Func for checking subscription """
     if subscription is None:
         return False
     if subscription.started_at.replace(tzinfo=timezone.utc) > datetime.now(timezone.utc):
@@ -227,7 +246,9 @@ def check_subscription(subscription: Subscription) -> bool:
         return False
     return True
 
+
 async def change_subscription(subscription: ChangeUserSubscription):
+    """ Func for changing subscription plan """
     if not subscription.set_to:
         await subscription_dao.delete_subscription(subscription.user_id)
         return
@@ -240,5 +261,7 @@ async def change_subscription(subscription: ChangeUserSubscription):
     else:
         await subscription_dao.update_subscription(subscription.user_id, started_at, finished_at)
 
+
 async def get_subscription(id: int) -> Subscription:
+    """ Subscription getter """
     return await subscription_dao.get_subscription_by_id(id)

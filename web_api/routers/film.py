@@ -1,9 +1,7 @@
-import os
+""" Routers for film page """
 import re
-
 from fastapi import APIRouter, Request, Response, HTTPException, Form
 from fastapi.responses import RedirectResponse, StreamingResponse, JSONResponse
-from starlette.templating import Jinja2Templates
 from sqlalchemy.exc import SQLAlchemyError
 
 from config import s3_client, BUCKET_NAME
@@ -16,11 +14,13 @@ from schemas.comment import Comment, CommentRequest
 from logs import logger
 
 
+""" Router initialize """
 router = APIRouter(prefix='/films', tags=['Filmpage'])
 
     
 @router.get("/{film_id}")
 async def get_film_html(user: UserDependency, request: Request, film_id: int):
+    """ Get film page and checking user access for this """
     if user is None:
         return RedirectResponse(url="/login")
     await add_interaction(user.id, film_id)
@@ -49,10 +49,6 @@ async def get_film_html(user: UserDependency, request: Request, film_id: int):
 @router.get("/video/{film_id}")
 async def get_video(request: Request, film_id: int):
     """For streaming films"""
-    # обращение к бд, чтобы достать путь к фильму по его айдишнику, пока хардкод
-
-    film = await get_film_by_id(film_id)
-
     # Получаем метаданные о видеофайле
     head_response = s3_client.head_object(Bucket=BUCKET_NAME, Key=f"{film_id}/video.mp4")
     file_size = head_response['ContentLength']
@@ -98,12 +94,14 @@ async def get_video(request: Request, film_id: int):
 
 @router.post('/watchtime/{film_id}')
 async def record_watchtime(user: UserDependency, film_id: int, time_watched: dict):
+    """ Router for adding watchtime into interaction """
     time = time_watched.get("timeWatched")
     await add_time_into_interaction(user.id, film_id, time)
 
 
 @router.post('/{film_id}/comments')
 async def add_comment(user: UserDependency, film_id: int, request: Request):
+    """ Router for adding comment to film """
     data = await request.json()
     comment = Comment(**data)
     comment_to_db = CommentRequest(user_id=user.id, rating=comment.rating, text=comment.text, film_id=film_id)
@@ -112,11 +110,14 @@ async def add_comment(user: UserDependency, film_id: int, request: Request):
 
 @router.get('/{film_id}/comments')
 async def get_comments(request: Request, film_id: int):
+    """ Router for loaging all comments for film """
     comments = await get_all_comments(film_id)
     return [{"name": comment.name, "surname": comment.surname, "rating": comment.rating, "text": comment.text} for comment in comments]
+
     
 @router.get('/edit/{film_id}')
 async def get_edit_film(request: Request, film_id: int, user: UserDependency):
+    """ Router get edit film page """
     if user is None or user.role != 'ROLE_ADMIN':
         return RedirectResponse(url="/login")
 
@@ -140,13 +141,16 @@ async def get_edit_film(request: Request, film_id: int, user: UserDependency):
         }
     )
 
+
 @router.post('/edit')
 async def edit_film(response: Response, film: EditFilmForm = Form(...)):
-    print("film age_rating: " + str(film.age_rating))
+    """ Router for edit information about film """
     await edit_film_service(film)
+
 
 @router.post('/delete/{film_id}')
 async def delete_film_request(request: Request, film_id: int):
+    """ Router for deleting film from all instances """
     try:
         await delete_film(film_id)
     except SQLAlchemyError as e:

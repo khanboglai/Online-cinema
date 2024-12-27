@@ -1,6 +1,5 @@
+""" Routers for lk """
 from datetime import datetime, timedelta
-from typing import Annotated
-
 from fastapi import APIRouter, Form
 from starlette import status
 from starlette.requests import Request
@@ -10,12 +9,13 @@ from config import templates
 from logs import logger
 from exceptions.exceptions import UserIsExistError, UserEmailExistError
 from schemas.user import EditUserRequest, ChangeUserSubscription
-from services.user import UserDependency, edit_user, create_access_token, get_birth_date_by_user_id, \
-    get_name_by_user_id, get_surname_by_user_id, get_email_by_user_id, get_profile_by_user_id, get_age, \
-    get_general_watchtime_by_user_id, get_recently_watched, check_subscription, change_subscription as change_sub, \
-    get_subscription
+from services.user import UserDependency, edit_user, create_access_token, get_profile_by_user_id, get_age, \
+    get_recently_watched, check_subscription, change_subscription as change_sub, get_subscription
 
+
+""" Router initialize """
 router = APIRouter(prefix="/lk", tags=["Personal Account"])
+
 
 @router.get("/")
 async def get_lk_html(user: UserDependency,
@@ -42,17 +42,14 @@ async def get_lk_html(user: UserDependency,
         }
     )
 
+
 @router.get("/edit")
 async def get_edit_html(user: UserDependency,
                         request: Request):
+    """Personal account edit page"""
     if user is None:
         return RedirectResponse(url="/login")
     profile = await get_profile_by_user_id(user.id)
-    """Personal account edit page"""
-    # name: str | None = await get_name_by_user_id(user)
-    # surname: str | None = await get_surname_by_user_id(user)
-    # birth_date: datetime | None = await get_birth_date_by_user_id(user)
-    # email: str | None = await get_email_by_user_id(user)
     return templates.TemplateResponse(
         "edit_lk.html",
         {
@@ -62,10 +59,12 @@ async def get_edit_html(user: UserDependency,
         }
     )
 
+
 @router.post("/edit")
 async def edit(response: Response,
                user: UserDependency,
                form: EditUserRequest = Form()):
+    """ Router for editing user info in all instances """
     try:
         new_user = await edit_user(user, form)
     except UserIsExistError as e:
@@ -80,6 +79,8 @@ async def edit(response: Response,
     response.set_cookie(key="access_token", value=access_token, max_age=datetime.utcnow() + timedelta(hours=1))
     return response
 
+
 @router.post("/subscription")
 async def change_subscription(subscription: ChangeUserSubscription = Form(...)):
+    """ Router for change subscription plan """
     await change_sub(subscription)
